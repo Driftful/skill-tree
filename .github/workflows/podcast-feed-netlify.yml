@@ -1,0 +1,42 @@
+name: Build Podcast Feed and Deploy
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "skills/skill-tree-podcast/assets/data/episodes/**"
+      - "assets/site/**"
+      - "scripts/build-podcast-feed.mjs"
+      - ".github/workflows/podcast-feed-netlify.yml"
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Build podcast feed
+        run: node scripts/build-podcast-feed.mjs
+
+      - name: Copy static site config
+        run: |
+          mkdir -p skills/skill-tree-podcast/site
+          cp -R assets/site/. skills/skill-tree-podcast/site/
+
+      - name: Validate generated feed
+        run: |
+          test -f skills/skill-tree-podcast/site/feed.xml
+          test -f skills/skill-tree-podcast/site/_redirects
+          rg "<rss" skills/skill-tree-podcast/site/feed.xml
+
+      - name: Deploy to Netlify with CLI
+        run: npx --yes netlify-cli deploy --dir=skills/skill-tree-podcast/site --prod --site="$NETLIFY_SITE_ID" --auth="$NETLIFY_AUTH_TOKEN"
+        env:
+          NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
+          NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
