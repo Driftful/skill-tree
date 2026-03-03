@@ -1,0 +1,8 @@
+{
+    "name": "skill-tree-podcast",
+    "description": "Podcast skill for discovering episodes, guests, and topics about agentic workflows, with maintainer references for content operations.",
+    "version": "1.0.0",
+    "author": {
+        "name": "Nick Nisi and Neil Roberts"
+    }
+}
