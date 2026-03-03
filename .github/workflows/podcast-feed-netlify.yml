@@ -33,7 +33,7 @@ jobs:
         run: |
           test -f skills/skill-tree-podcast/site/feed.xml
           test -f skills/skill-tree-podcast/site/_redirects
-          rg "<rss" skills/skill-tree-podcast/site/feed.xml
+          grep -q "<rss" skills/skill-tree-podcast/site/feed.xml
 
       - name: Deploy to Netlify with CLI
         run: npx --yes netlify-cli deploy --dir=skills/skill-tree-podcast/site --prod --site="$NETLIFY_SITE_ID" --auth="$NETLIFY_AUTH_TOKEN"
