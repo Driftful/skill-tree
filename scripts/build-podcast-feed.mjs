@@ -3,7 +3,7 @@
 import fs from "node:fs/promises";
 import path from "node:path";
 
-const episodesDir = path.resolve("skills/skill-tree-podcast/assets/data/episodes");
+const episodesDir = path.resolve("skills/skill-tree-podcast/data/episodes");
 const outputDir = path.resolve("skills/skill-tree-podcast/site");
 const outputFile = path.join(outputDir, "feed.xml");
 
@@ -92,6 +92,9 @@ async function loadEpisodes() {
   for (const filePath of files) {
     const content = await fs.readFile(filePath, "utf8");
     const data = parseFrontmatter(content, filePath);
+    if ((data.status || "").trim().toLowerCase() !== "published") {
+      continue;
+    }
     requiredFields(data, filePath);
     const parsedDate = new Date(data.date);
     if (Number.isNaN(parsedDate.getTime())) {

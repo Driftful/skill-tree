@@ -1,1 +1,1 @@
-Use the skill-tree skill to understand this project.
+Always use the skill-tree-podcast skill defined in `SKILL.md`.

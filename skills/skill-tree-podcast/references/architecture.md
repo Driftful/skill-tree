@@ -4,8 +4,8 @@
 
 The podcast is represented as an agent skill:
 - Root `SKILL.md` provides compact orientation and navigation.
-- Domain content is split across episodes, speakers, transcripts, and topics.
-- Generated index and aggregation pages provide fast traversal paths for agents.
+- Domain content is split across episodes, speakers, transcripts, reusable directory entries, and topics.
+- Script-generated index and aggregation pages provide fast traversal paths for agents.
 
 ## Progressive Disclosure Strategy
 
@@ -17,8 +17,22 @@ This keeps initial context small while preserving deep coverage.
 
 ## Repository Anchors
 
-- Skill entry point: `skills/skill-tree/SKILL.md`
-- Reference docs: `skills/skill-tree/references/`
+- Skill entry point: `skills/skill-tree-podcast/SKILL.md`
+- Reference docs: `skills/skill-tree-podcast/references/`
+- Source content: `skills/skill-tree-podcast/data/`
+
+## Source Content Layers
+
+- `data/episodes/`: per-episode records
+- `data/speakers/`: reusable people records
+- `data/transcripts/`: cleaned transcript text
+- `data/directory/`: reusable named entries for things in the podcast ecosystem
+- `data/topics/`: high-level corpus themes curated separately over time
+
+Keep `directory` and `topics` distinct:
+
+- `directory` is for concrete named things such as tools, orgs, files, protocols, and coined show terms
+- `topics` is for durable high-level themes used for corpus-level organization
 
 ## Non-Goals for Root Docs
 
