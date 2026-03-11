@@ -4,9 +4,9 @@
 
 **Nick**: I like it.
 
-**Neil**: There was this TV show I used to watch when I was little called Fred Penner's Place. And the intro is a guy going through the woods and through bushes, and he goes through a log and ends up in a secret little clearing in the woods. And so that's what I think of, us gathering around under the Skill Tree. I sent you a little AI image that I played around with that was trying to convey the vibe that I'm going for.
+**Neil**: There was this TV show I used to watch when I was little called Fred Penner's Place. And [the intro is a guy going through the woods and through bushes, and he goes through a log and ends up in a secret little clearing in the woods](https://youtu.be/4frIsSEp03E?si=w74lcBQsYgzpOsl_&t=37). And so that's what I think of, us gathering around under the Skill Tree. I sent you a little AI image that I played around with that was trying to convey the vibe that I'm going for.
 
-**Nick**: It immediately invoked the vibe that I've been getting a lot lately with... did you ever watch *The Simpsons*? The Lemon Tree episode where Grandpa Simpson's sitting under the lemon tree talking about how things were in the past. That's us right now talking about pre-AI days.
+**Nick**: It immediately invoked the vibe that I've been getting a lot lately with... did you ever watch *The Simpsons*? [The Lemon Tree episode](https://en.wikipedia.org/wiki/Lemon_of_Troy) where Grandpa Simpson's sitting under the lemon tree talking about how things were in the past. That's us right now talking about pre-AI days.
 
 **Neil**: I mean, I learned assembly, so it's moved a while since there.
 
@@ -60,7 +60,7 @@
 
 **Nick**: It's so weird. Total tangent, but I was reading the [TypeScript 6 beta notes](https://devblogs.microsoft.com/typescript/announcing-typescript-6-0-beta/), like what's coming in TypeScript 6 and all the new features, and I'm like, "Oh, that's cool. I'm sure Claude's gonna enjoy that syntax." Like, I don't care anymore. Such a weird thing to say.
 
-**Neil**: I don't know. I opened up one of the type files that whatever LLM I was using had generated and I was like, "I feel like you could do a little bit better here." I think it was Matt Pocock. He's talking about how he thinks of things in terms of modules and interfaces. And he spends time on modules and interfaces and then worries a little bit less about the inner workings. And so I feel like TypeScript's a really good one of those interfaces where you can spend a little bit of extra time. You can be indulgent a little bit, perhaps, with your types.
+**Neil**: I don't know. I opened up one of the type files that whatever LLM I was using had generated and I was like, "I feel like you could do a little bit better here." I think it was Matt Pocock. He's talking about [how he thinks of things in terms of modules and interfaces](https://www.youtube.com/watch?v=e0AIkYrXAYE). And he spends time on modules and interfaces and then worries a little bit less about the inner workings. And so I feel like TypeScript's a really good one of those interfaces where you can spend a little bit of extra time. You can be indulgent a little bit, perhaps, with your types.
 
 **Nick**: Yeah, and I'm being a little silly in that I look at code all day, but I do feel the importance of it waning a bit. Just the minutiae of every line of code.
 
@@ -122,7 +122,7 @@ LinkedIn recommendations was the first thing. It was like, I could have ChatGPT 
 
 **Neil**: [Mastra Code](../directory/mastra-code.md) has been the most successful harness for that. There's another setup I like a lot called [Agent Zero](../directory/agent-zero.md), which I think is fascinating for a lot of different reasons. I would love to have the creator on sometime. In one of his recent episodes he kind of is like, "I invented skills." He had his own variation of it, but he had packaged up a system of prompts and command-line utilities and everything quite a while ago. He's a fun tinkerer to watch, just to see how he's solving some of these problems. Mastra released their observational memory system, which is fascinating, but he had done something similar where he situationally compresses parts of the discussion as it goes on longer and longer. So those have been... I think Mastra Code is probably the best harness right now, and that's only a couple weeks old at this point. It's actually really tweakable, their setup, because it really is just a bunch of agents under the hood. So you can just mess with the agents and give them different instructions and different tools and stuff like that.
 
-**Nick**: It's built on [`pi.dev`](../directory/pi-dev.md), which I think is the same thing that OpenClaw uses or whatever.
+**Nick**: It's built on `[pi.dev](../directory/pi-dev.md)`, which I think is the same thing that OpenClaw uses or whatever.
 
 **Neil**: Yeah, it's fun watching some of the stuff emerge. I think Mastra Code's probably the best playground to use these different models right now. I think it does a better job of dealing with loading skills and talking to MCP servers and stuff like that, which makes sense. That's what their tooling is for.
 

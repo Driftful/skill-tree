@@ -52,6 +52,8 @@ Notes:
 - Research can run autonomously, including subagent-backed link resolution, but transcript changes should be staged in a review document before application.
 - For reusable items, link only the first approved occurrence by default and point that link at the local `data/directory/` entry.
 - For one-off references, link directly to the external URL in the transcript.
+- If a one-off reference seems to point at a specific clip, episode, talk, or video, ask the user for the exact target when a generic page would be a guess.
+- Attach links to the text describing the actual referenced artifact or idea, not automatically to the nearest person, show, or product name.
 
 ## Maintenance Expectations
 

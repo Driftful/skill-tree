@@ -45,6 +45,18 @@ Do not replace transcript text, create inline links, create new directory entrie
 Always stage the proposed changes in the review document first.
 The user may edit that document before approving application.
 
+## Clarification-First Rule
+
+When a transcript reference appears to point to a specific artifact rather than a general entity, prefer clarification over guessing.
+
+Common examples:
+
+- a show's intro clip rather than the show in general
+- a specific episode rather than the series
+- a specific video, talk, or blog post rather than the person or company behind it
+
+If there is a reasonable chance the user has the exact target URL or has a stronger preference about what should be linked, ask before applying a generic fallback.
+
 ## Placement Rule
 
 Default to linking only the first occurrence of each accepted reusable directory item in a transcript.
@@ -61,6 +73,16 @@ When a reusable directory candidate is accepted:
 When a one-off inline reference is accepted:
 
 - link directly to the external canonical URL in the transcript
+
+## Anchor Text Rule
+
+Attach each link to the text that best matches what is actually being referenced.
+
+Examples:
+
+- if the reference is to an intro clip, link the intro description rather than the show title
+- if the reference is to a specific article or video, link the article or idea description rather than only the author's name
+- if the reference is to a reusable tool or product, linking the named entity itself is usually appropriate
 
 ## Reusable Directory Candidates
 

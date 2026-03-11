@@ -36,6 +36,14 @@ For unresolved candidates, research should aim to find:
 
 Research should prefer the clearest canonical source available for the kind of thing being resolved.
 
+Before settling on a fallback target, check whether the transcript is actually referring to:
+
+- a parent entity
+- a specific artifact created by that entity
+- an idea explained in a specific artifact
+
+If the transcript points at a specific artifact and the exact target is uncertain, prefer asking the user over silently linking a broader parent page.
+
 ## Confidence Model
 
 Track two confidence values:
@@ -85,6 +93,18 @@ Unless the user asks otherwise, propose transcript replacements only at the firs
 
 For one-off inline references, propose the single occurrence that most directly mentions the cited item.
 
+## Anchor Selection Defaults
+
+Choose the smallest span of text that accurately names the thing being linked.
+
+Prefer:
+
+- the episode title when linking a specific episode
+- the intro or clip description when linking a specific clip
+- the idea or video description when linking a specific talk or video
+
+Avoid attaching a link to a broader parent noun when the actual target is narrower.
+
 ## Application Rule
 
 The review document is the only place where raw resolution results should be staged for approval.
@@ -102,3 +122,4 @@ After approval:
 - create any needed `data/directory/*.md` entries for accepted reusable items
 - use local relative links from the transcript to those directory files
 - use direct external links only for approved inline one-off references
+- preserve the approved anchor text choice, especially when it points at a specific artifact or idea instead of a broader name
