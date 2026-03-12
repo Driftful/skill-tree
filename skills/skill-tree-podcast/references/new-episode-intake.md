@@ -8,6 +8,7 @@ Use this workflow when the user says they want to start a new episode and may no
 
 - A final title.
 - A transcript.
+- An MP3 ready for upload.
 - Complete guest details.
 - Complete directory or topic metadata.
 
@@ -24,6 +25,7 @@ Episode creation should be highly interactive. The agent should confirm key deta
 5. Ask whether there were any guests.
 6. For each person on the episode, link an existing `data/speakers/` profile or create a new one.
 7. Leave unknown fields as `TBD` instead of blocking progress.
+8. Do not create or publish the remote hosting entry during intake unless the user explicitly asks for that later.
 
 ## Episode Placeholder Guidance
 
@@ -49,10 +51,14 @@ The placeholder should capture at least:
 - Directory: an empty `directory: []` array during initial creation.
 - Topics: an empty `topics: []` array during initial creation.
 
-During episode creation, do not attempt to locate transcripts, metadata source files, directory entries, tags, or topics. The creation pass should focus only on establishing the episode record and speaker links.
+If the user already knows a non-default publishing override, the placeholder may also include a nested `publishing:` block. Otherwise omit it until remote sync work actually begins.
+
+During episode creation, do not attempt to locate transcripts, metadata source files, directory entries, tags, topics, or remote hosting IDs. The creation pass should focus only on establishing the episode record and speaker links.
 Leave `transcript: TBD` until the transcript file exists, and keep both `directory: []` and `topics: []` empty during the initial creation pass.
 
 Episode placeholders can be front-matter-only. Do not add markdown body filler when there is no substantive narrative content yet.
+
+When show notes exist later, store them in the Markdown body of the episode file rather than a `description` front matter field.
 
 ## Speaker Profile Workflow
 
@@ -77,3 +83,4 @@ As with episodes, keep these structured fields in front matter whenever possible
 
 Do not wait for the transcript, polished title, or final summary before creating the episode record. The first pass should establish the episode placeholder and the people records, then future passes can fill in transcript-derived metadata.
 Directory entries may be added later during transcript enrichment. Topics are curated only in the separate topic-curation workflow.
+Remote episode creation should happen later, only when the local metadata is mature and the user explicitly asks to create or publish the hosted episode.

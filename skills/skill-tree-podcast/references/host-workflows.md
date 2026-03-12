@@ -9,6 +9,7 @@ Use it to route into the detailed workflow needed for the current production ste
 - Guest profile creation and updates.
 - Episode transcript processing and formatting.
 - Episode metadata updates, including reusable directory entries and inline references.
+- Late-stage audio upload, remote episode sync, and publish/schedule actions.
 - Separate topic curation across the full episode set.
 - Build and publish/deploy scripts for GitHub.
 
@@ -54,6 +55,49 @@ Notes:
 - For one-off references, link directly to the external URL in the transcript.
 - If a one-off reference seems to point at a specific clip, episode, talk, or video, ask the user for the exact target when a generic page would be a guess.
 - Attach links to the text describing the actual referenced artifact or idea, not automatically to the nearest person, show, or product name.
+
+## Remote Publishing Workflow
+
+Treat the podcast files in `data/` as the source of truth. Remote hosting actions happen only after the local episode record is mature enough to publish.
+
+### When Remote Actions Should Happen
+
+- Do not create a remote episode during initial intake.
+- Do not create a remote episode automatically after transcript cleanup or enrichment.
+- Create or publish the remote episode only when the user explicitly asks for it.
+
+### Recommended Sequence
+
+1. Start the episode locally with the intake workflow.
+2. Clean and enrich the transcript.
+3. Finalize local metadata such as title, summary, show notes in the episode Markdown body, transcript path, speaker references, and directory entries.
+4. When the user provides an MP3 path outside the repo, run `node scripts/transistor-fm.mjs episodes upload --file <path>`.
+5. Save the returned audio URL into the episode front matter as `publishing.audio_url`.
+6. If the user explicitly asks to create the hosted episode and no `publishing.episode_id` exists yet, read the provider show ID from `data/show.md` and run `node scripts/transistor-fm.mjs episodes create --show-id <show-id-from-show-md> ...`.
+7. Save the returned remote episode ID as `publishing.episode_id`, along with any returned `share_url` or current remote `status`.
+8. If metadata changes after the remote create, run `node scripts/transistor-fm.mjs episodes update --id <episode-id> ...`.
+9. When the user explicitly asks to publish or schedule the episode, run `node scripts/transistor-fm.mjs episodes publish --id <episode-id> --status ...`.
+
+### Publish Input Mapping
+
+At sync time, map local content into the remote episode payload like this:
+
+- title from episode front matter `title`
+- summary from episode front matter `summary`
+- description from the episode Markdown body
+- transcript text from the local transcript file
+- keywords from `publishing.keywords` when present
+- audio URL from `publishing.audio_url` when present
+
+Unless explicitly overridden, use these operational defaults during sync:
+
+- `type=full`
+- `explicit=false`
+- author derived from show-level defaults first, otherwise from the episode hosts
+
+### Publish Edge Case
+
+If the user asks to publish an episode that does not yet have `publishing.episode_id`, first create the remote episode, persist the returned ID, and then immediately run the publish command.
 
 ## Maintenance Expectations
 

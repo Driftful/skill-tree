@@ -11,6 +11,7 @@ Use progressive disclosure. Keep root `SKILL.md` minimal and navigation-first, a
 ## Source of Truth Files
 
 These are hand-authored and treated as build inputs:
+- `data/show.md`: show-wide metadata and publishing configuration.
 - `data/speakers/*.md`: host/guest bios and expertise tags.
 - `data/episodes/*.md`: metadata, summaries, tags, and speaker references.
 - `data/transcripts/*.md`: full episode transcripts.
@@ -44,14 +45,70 @@ Prefer front matter for fields such as:
 - Organization, links, and handles.
 - Directory references, topics, and expertise areas.
 - Transcript references and related source references.
+- Publishing-specific IDs, URLs, and override values.
 
 Use the filename as the canonical slug source for all content files. Do not store a separate `slug` field in front matter.
 
-Keep the body optional. Use it only for substantive narrative notes, longer summaries, research notes, or supporting context that does not fit cleanly into structured fields.
+Keep the body optional. Use it for substantive narrative notes, show notes, longer summaries, research notes, or supporting context that does not fit cleanly into structured fields.
+
+For podcast publishing:
+
+- episode Markdown bodies should hold the long-form show notes and the text that will be passed to a hosting provider as the episode description
+- `data/show.md` should use its Markdown body for the show-level description rather than duplicating that text in front matter
+- do not duplicate long-form descriptions into front matter when the Markdown body is the canonical source
 
 For episode placeholders, prefer explicit structured fields such as `summary: TBD`, `transcript: TBD`, `directory: []`, and `topics: []` over extra boolean flags when the missing state is already obvious from the field value itself.
 
 Avoid aggregate completion flags such as `is_publish_ready`. Prefer direct field values that show what is missing.
+
+## Show Metadata
+
+Store show-wide metadata in `data/show.md`.
+
+Use front matter there for structured show fields such as:
+
+- Title.
+- Website.
+- Host references.
+- Categories.
+- Publishing provider details such as show IDs, feed URLs, or provider slugs.
+
+Use the Markdown body for the long-form show description.
+
+## Episode Publishing Metadata
+
+Keep episode editorial metadata separate from publishing-system metadata.
+
+Episode files may include a nested `publishing:` block for remote-sync state and provider-specific fields that are needed to create, update, or publish the remote episode.
+
+Recommended `publishing:` fields:
+
+- `provider`: current publishing target, such as `transistor`
+- `episode_id`: remote episode ID after the first successful create
+- `status`: remote publish status when known
+- `published_at`: scheduled or published timestamp when known
+- `audio_url`: uploaded or final hosted audio URL
+- `keywords`: optional publish-target keywords list
+- `share_url`: remote share URL when available
+- `image_url`: optional episode-specific artwork override
+- `email_notifications`: optional per-episode override
+
+Do not add or duplicate these local source fields unless they need explicit override:
+
+- `author`
+- `type`
+- `explicit`
+- `season`
+- `video_url`
+- `alternate_url`
+
+Operational defaults may be supplied during publishing without being stored in every episode file. Store them locally only when an episode needs a non-default value or a durable override.
+
+Do not store these as source-of-truth episode metadata:
+
+- `slug`
+- `transcript_text`
+- read-only provider fields such as `duration`, `media_url`, `embed_html`, or `updated_at`
 
 ## Directory vs Topics vs Inline References
 
