@@ -1,12 +1,10 @@
-name: Build Podcast Feed and Deploy
+name: Deploy Podcast Feed Redirect
 
 on:
   workflow_dispatch:
   push:
     paths:
-      - "skills/skill-tree-podcast/assets/data/episodes/**"
       - "assets/site/**"
-      - "scripts/build-podcast-feed.mjs"
       - ".github/workflows/podcast-feed-netlify.yml"
 
 jobs:
@@ -21,19 +19,16 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Build podcast feed
-        run: node scripts/build-podcast-feed.mjs
-
       - name: Copy static site config
         run: |
+          rm -rf skills/skill-tree-podcast/site
           mkdir -p skills/skill-tree-podcast/site
           cp -R assets/site/. skills/skill-tree-podcast/site/
 
-      - name: Validate generated feed
+      - name: Validate feed redirect
         run: |
-          test -f skills/skill-tree-podcast/site/feed.xml
           test -f skills/skill-tree-podcast/site/_redirects
-          grep -q "<rss" skills/skill-tree-podcast/site/feed.xml
+          rg '^/feed\.xml\s+https://feeds\.transistor\.fm/skill-tree\s+302!$' skills/skill-tree-podcast/site/_redirects
 
       - name: Deploy to Netlify with CLI
         run: npx --yes netlify-cli deploy --dir=skills/skill-tree-podcast/site --prod --site="$NETLIFY_SITE_ID" --auth="$NETLIFY_AUTH_TOKEN"

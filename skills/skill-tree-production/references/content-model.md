@@ -54,6 +54,8 @@ Keep the body optional. Use it for substantive narrative notes, show notes, long
 For podcast publishing:
 
 - episode Markdown bodies should hold the long-form show notes and the text that will be passed to a hosting provider as the episode description
+- episode front matter `summary` is limited to local metadata and MP3 tagging, not a field to send to the hosting provider during remote episode sync
+- when present, a `## Episode Chapters` section in the episode body should be treated as the canonical source for embedded MP3 chapter labels
 - `data/show.md` should use its Markdown body for the show-level description rather than duplicating that text in front matter
 - do not duplicate long-form descriptions into front matter when the Markdown body is the canonical source
 
@@ -78,6 +80,9 @@ Use the Markdown body for the long-form show description.
 ## Episode Publishing Metadata
 
 Keep episode editorial metadata separate from publishing-system metadata.
+
+Also keep embedded audio metadata separate from hand-authored source metadata.
+The MP3 tags are a derived artifact generated from `data/show.md`, episode front matter, the episode Markdown body, and the `## Episode Chapters` section when present.
 
 Episode files may include a nested `publishing:` block for remote-sync state and provider-specific fields that are needed to create, update, or publish the remote episode.
 
@@ -104,10 +109,14 @@ Do not add or duplicate these local source fields unless they need explicit over
 
 Operational defaults may be supplied during publishing without being stored in every episode file. Store them locally only when an episode needs a non-default value or a durable override.
 
+Pre-upload audio-tagging defaults may also be supplied operationally rather than stored in every episode file.
+For example, show title, album artist, genre, podcast frames, and chapter import behavior should normally be derived at tagging time.
+
 Do not store these as source-of-truth episode metadata:
 
 - `slug`
 - `transcript_text`
+- duplicated embedded-audio tag fields that can already be derived from show metadata, episode metadata, or the episode body
 - read-only provider fields such as `duration`, `media_url`, `embed_html`, or `updated_at`
 
 ## Directory vs Topics vs Inline References

@@ -1,0 +1,348 @@
+user:
+  get:
+    "GET:/v1":
+      description: "Retrieve details of the user account that is authenticating to the API."
+      return_type: "User"
+      parameters: {}
+shows:
+  list:
+    "GET:/v1/shows":
+      description: "Retrieve a paginated list of shows in descending order by updated date."
+      return_type: "Show[]"
+      parameters:
+        private: "Boolean?: Filter for private shows"
+        query: "String?: Search query"
+        pagination[page]: "Integer?: Page number"
+        pagination[per]: "Integer?: Resources per page"
+  get:
+    "GET:/v1/shows/:id":
+      description: "Retrive a single show (podcast)."
+      return_type: "Show"
+      parameters:
+        id: "String: Show ID or slug"
+  update:
+    "PATCH:/v1/shows/:id":
+      description: "Update a show with any or all of the following attributes."
+      return_type: "Show"
+      parameters:
+        id: "String: Show ID or slug"
+        show[author]: "String?: Podcast author"
+        show[category]: "String?: Primary category"
+        show[copyright]: "String?: Copyright information"
+        show[description]: "String?: Podcast description"
+        show[explicit]: "Boolean?: Podcast contains explicit content"
+        show[image_url]: "String?: Podcast artwork image URL"
+        show[keywords]: "String?: Comma-separated list of keywords"
+        show[language]: "String?: Podcast's spoken language"
+        show[owner_email]: "String?: Podcast owner email"
+        show[secondary_category]: "String?: Secondary category"
+        show[show_type]: "String?: Publishing type. Episodic displays newest episodes, serial displays oldest first"
+        show[title]: "String?: Podcast title"
+        show[time_zone]: "String?: Publishing time zone"
+        show[website]: "String?: Podcast website"
+  analytics:
+    "GET:/v1/analytics/:id":
+      description: "Retrieve analytics of downloads per day for an entire podcast. Defaults to the last 14 days."
+      return_type: "ShowAnalytics"
+      parameters:
+        id: "String: Show ID or slug"
+        start_date: "String?: Optional starting date for analytics (dd-mm-yyyy). Required if using an ending date."
+        end_date: "String?: Optional ending date for analytics (dd-mm-yyyy). Required if using a starting date."
+episodes:
+  list:
+    "GET:/v1/episodes":
+      description: "Retrieve a paginated list of episodes ordered by published date."
+      return_type: "Episode[]"
+      parameters:
+        show_id: "String?: Show ID or slug"
+        query: "String?: Search query"
+        status: "String?: Publishing status: published, scheduled, or draft"
+        order: "String?: Return order of episodes. Newest first (desc), or oldest first (asc)"
+        pagination[page]: "Integer?: Page number"
+        pagination[per]: "Integer?: Resources per page"
+  create:
+    "POST:/v1/episodes":
+      description: "Create a new draft episode for the specified show. Note that publishing an episode involves a separate endpoint."
+      return_type: "Episode"
+      parameters:
+        episode[show_id]: "String: ID or Slug of the Show to add an episode to"
+        episode[audio_url]: "String?: URL to an episode's new audio file"
+        episode[transcript_text]: "String?: Full text of the episode transcript"
+        episode[author]: "String?: Episode author"
+        episode[description]: "String?: Longer episode description which may contain HTML and unformatted tags for chapters, people, supporters, etc"
+        episode[explicit]: "Boolean?: Episode contains explicit content"
+        episode[image_url]: "String?: Episode artwork image URL"
+        episode[keywords]: "String?: Comma-separated list of keywords"
+        episode[number]: "Integer?: Episode number"
+        episode[season]: "Integer?: Season number"
+        episode[type]: "String?: Full, trailer, or bonus episode"
+        episode[title]: "String?: Episode title"
+        episode[alternate_url]: "String?: Alternate episode URL overriding the share_url"
+        episode[video_url]: "String?: YouTube video URL to be embedded on episode sharing pages and website pages"
+        episode[email_notifications]: "Boolean?: Private podcast email notifications override (defaults to Show setting)"
+        episode[increment_number]: "Boolean?: Automatically set the number to the next episode number of the current season"
+  get:
+    "GET:/v1/episodes/:id":
+      description: "Retrieve a single podcast episode."
+      return_type: "Episode"
+      parameters:
+        id: "String: Episode ID"
+  update:
+    "PATCH:/v1/episodes/:id":
+      description: "Update a single podcast episode. Note that publishing or unpublishing an episode involves a separate endpoint."
+      return_type: "Episode"
+      parameters:
+        id: "String: Episode ID"
+        episode[audio_url]: "String?: URL to an episode's new audio file"
+        episode[transcript_text]: "String?: Full text of the episode transcript"
+        episode[author]: "String?: Episode author"
+        episode[description]: "String?: Longer episode description which may contain HTML and unformatted tags for chapters, people, supporters, etc"
+        episode[explicit]: "Boolean?: Episode contains explicit content"
+        episode[image_url]: "String?: Episode artwork image URL"
+        episode[keywords]: "String?: Comma-separated list of keywords"
+        episode[number]: "Integer?: Episode number"
+        episode[season]: "Integer?: Season number"
+        episode[type]: "String?: Full, trailer, or bonus episode"
+        episode[title]: "String?: Episode title"
+        episode[alternate_url]: "String?: Alternate episode URL overriding the share_url"
+        episode[video_url]: "String?: YouTube video URL to be embedded on episode sharing pages and website pages"
+        episode[email_notifications]: "Boolean?: Private podcast email notifications override (defaults to Show setting)"
+  publish:
+    "PATCH:/v1/episodes/:id/publish?episode[status]=published":
+      description: "Publish a single episode now or in the past, schedule for the future, or revert to a draft."
+      return_type: "Episode"
+      parameters:
+        id: "String: Episode ID"
+        episode[published_at]: "String?: Episode publishing date and time - in your podcast's time zone"
+  schedule:
+    "PATCH:/v1/episodes/:id/publish?episode[status]=scheduled":
+      description: "Publish a single episode now or in the past, schedule for the future, or revert to a draft."
+      return_type: "Episode"
+      parameters:
+        id: "String: Episode ID"
+        episode[published_at]: "String?: Episode publishing date and time - in your podcast's time zone"
+  unpublish:
+    "PATCH:/v1/episodes/:id/publish?episode[status]=draft":
+      description: "Publish a single episode now or in the past, schedule for the future, or revert to a draft."
+      return_type: "Episode"
+      parameters:
+        id: "String: Episode ID"
+        episode[published_at]: "String?: Episode publishing date and time - in your podcast's time zone"
+  upload:
+    "GET:/v1/episodes/authorize_upload":
+      description: "Authorize a URL for uploading a local audio file to be used when creating or updating an episode."
+      return_type: "AudioUpload"
+      parameters:
+        filename: "String: Filename of the audio file you wish to upload"
+    "PUT:{upload_url}":
+      description: "Upload your audio file using the authorized upload_url and content_type."
+      parameters:
+        Content-Type: "String: Content type of the audio file to upload"
+        file: "File: Audio file uploaded to the authorized upload_url"
+  analytics:
+    "GET:/v1/analytics/:id/episodes":
+      description: "Retrieve analytics of downloads per day for all episodes of a podcast. Defaults to the last 7 days."
+      return_type: "EpisodesAnalytics"
+      parameters:
+        id: "String: Show ID or slug"
+        start_date: "String?: Optional starting date for analytics (dd-mm-yyyy). Required if using an ending date."
+        end_date: "String?: Optional ending date for analytics (dd-mm-yyyy). Required if using a starting date."
+    "GET:/v1/analytics/episodes/:id":
+      description: "Retrieve analytics of downloads per day for a single episode. Defaults to the last 14 days."
+      return_type: "EpisodeAnalytics"
+      parameters:
+        id: "String: Episode ID or slug"
+        start_date: "String?: Optional starting date for analytics (dd-mm-yyyy). Required if using an ending date."
+        end_date: "String?: Optional ending date for analytics (dd-mm-yyyy). Required if using a starting date."
+subscribers:
+  list:
+    "GET:/v1/subscribers":
+      description: "Retrieve a list of all subscribers for a single private podcast."
+      return_type: "Subscriber[]"
+      parameters:
+        show_id: "String: Show ID or slug"
+        query: "String?: Search query"
+        pagination[page]: "Integer?: Page number"
+        pagination[per]: "Integer?: Resources per page"
+  get:
+    "GET:/v1/subscribers/:id":
+      description: "Retrieve a single private podcast subscriber."
+      return_type: "Subscriber"
+      parameters:
+        id: "String: Subscriber ID"
+  create:
+    "POST:/v1/subscribers":
+      description: "Add a single subscriber to a private podcast, and send an optional instructional email."
+      return_type: "Subscriber"
+      parameters:
+        show_id: "String: Show ID or slug"
+        email: "String: Email address"
+        skip_welcome_email: "Boolean?: Do not send the instructional email"
+    "POST:/v1/subscribers/batch":
+      description: "Add a batch of multiple subscribers to a private podcast, and send them optional instructional emails."
+      return_type: "Subscriber[]"
+      parameters:
+        show_id: "String: Show ID or slug"
+        emails: "[String]: Array of email addresses"
+        skip_welcome_email: "Boolean?: Do not send the instructional emails"
+  update:
+    "PATCH:/v1/subscribers/:id":
+      description: "Update a single private podcast subscriber."
+      return_type: "Subscriber"
+      parameters:
+        id: "String: Subscriber ID"
+        subscriber[email]: "String: Subscriber's email address"
+  delete:
+    "DELETE:/v1/subscribers":
+      description: "Remove a single private podcast subscriber and revoke their access to the podcast."
+      return_type: "Subscriber"
+      parameters:
+        show_id: "String: Show ID or slug"
+        email: "String: Email address"
+    "DELETE:/v1/subscribers/:id":
+      description: "Remove a single private podcast subscriber and revoke their access to the podcast."
+      return_type: "Subscriber"
+      parameters:
+        id: "String: Subscriber ID"
+webhooks:
+  list:
+    "GET:/v1/webhooks":
+      description: "Retrieve a list of webhooks for a show"
+      return_type: "Webhook[]"
+      parameters:
+        show_id: "String: Show ID or slug"
+  subscribe:
+    "POST:/v1/webhooks":
+      description: "Subscribe to a webhook with the given event name and show."
+      return_type: "Webhook"
+      parameters:
+        event_name: "String: Name of webhook event"
+        show_id: "String: Show ID or slug"
+        url: "String: Target URL for webhook delivery"
+  unsubscribe:
+    "DELETE:/v1/webhooks/:id":
+      description: "Unsubscribe from a webhook."
+      return_type: "Webhook"
+      parameters:
+        id: "String: Webhook ID"
+_models:
+  User:
+    created_at: "Datetime: Timestamp of creation"
+    image_url: "String: Avatar image URL"
+    name: "String: Full name"
+    time_zone: "String: Current time zone"
+    updated_at: "Datetime: Timestamp of last update"
+  Show:
+    amazon_music: "String: Amazon Music URL"
+    anghami: "String: Anghami URL"
+    apple_podcasts: "String: Apple Podcasts URL"
+    author: "String: Podcast author"
+    castbox: "String: Castbox URL"
+    castro: "String: Castro URL"
+    category: "String: Primary category"
+    copyright: "String: Copyright information"
+    created_at: "Datetime: Timestamp of creation"
+    deezer: "String: Deezer URL"
+    description: "String: Podcast description"
+    email_notifications: "Boolean: Private podcast email notifications enabled or disabled"
+    explicit: "Boolean: Podcast contains explicit content"
+    feed_url: "String: Podcast RSS Feed URL"
+    fountain: "String: Fountain URL"
+    gaana: "String: Gaana URL"
+    goodpods: "String: Goodpods URL"
+    iHeartRadio: "String: iHeartRadio URL"
+    image_url: "String: Podcast artwork image URL"
+    jiosaavn: "String: JioSaavn URL"
+    keywords: "String: Comma-separated list of keywords"
+    language: "String: Podcast's spoken language"
+    metacast: "String: Metacast URL"
+    multiple_seasons: "Boolean: Podcast has multiple seasons"
+    overcast: "String: Overcast URL"
+    owner_email: "String: Podcast owner email"
+    pandora: "String: Pandora URL"
+    player_FM: "String: Player FM URL"
+    playlist_limit: "Integer: Playlist embed player episode limit"
+    pocket_casts: "String: Pocket Casts URL"
+    podcast_addict: "String: Podcast Addict URL"
+    private: "Boolean: Podcast is private and subscribers are managed by admins"
+    secondary_category: "String: Secondary category"
+    show_type: "String: Publishing type. Episodic displays newest episodes, serial displays oldest first"
+    slug: "String: Podcast slug (used for API and RSS Feed URL)"
+    soundcloud: "String: Soundcloud URL"
+    spotify: "String: Spotify URL"
+    time_zone: "String: Publishing time zone"
+    title: "String: Podcast title"
+    tuneIn: "String: TuneIn URL"
+    updated_at: "Datetime: Timestamp of last update"
+    website: "String: Podcast website"
+    episodes: "Episode[]"
+    subscribers: "Subscriber[]"
+  Episode:
+    alternate_url: "String: Alternate episode URL overriding the share_url"
+    audio_processing: "Boolean: Denotes processing of audio after creating or updating the audio_url"
+    author: "String: Episode author"
+    created_at: "Datetime: Timestamp of creation"
+    description: "String: Longer episode description which may contain HTML and unformatted tags for chapters, people, supporters, etc"
+    duration: "Integer: Duration of episode in seconds"
+    duration_in_mmss: "String: Duration of episode in minutes and seconds. e.g. 34:12"
+    email_notifications: "String: Private podcast email notifications override (defaults to Show setting)"
+    embed_html: "String: Embeddable audio player HTML"
+    embed_html_dark: "String: Dark theme of the embeddable audio player HTML"
+    explicit: "Boolean: Episode contains explicit content"
+    formatted_description: "String: HTML episode description including dynamic content like chapters, people, supporters, etc"
+    formatted_published_at: "String: Formatted version of the published_at datetime field"
+    formatted_summary: "String: Formatted episode summary short description"
+    image_url: "String: Episode artwork image URL"
+    keywords: "String: Comma-separated list of keywords"
+    media_url: "String: Trackable audio MP3 URL"
+    number: "Integer: Episode number"
+    published_at: "Datetime: Episode publishing date and time - in your podcast's time zone"
+    season: "Integer: Season number"
+    share_url: "String: Social media sharing page URL"
+    slug: "String: Slugified episode title used in Transistor websites. e.g. my-first-episode"
+    status: "String: Publishing status: published, scheduled, or draft"
+    summary: "String: Episode summary short description"
+    title: "String: Episode title"
+    transcript_url: "String: Shareable URL for the episode transcript"
+    transcripts: "Array: An array of URLs to AI transcription formats"
+    type: "String: Full, trailer, or bonus episode"
+    updated_at: "Datetime: Timestamp of last update"
+    video_url: "String: YouTube video URL to be embedded on episode sharing pages and website pages"
+    show: "Show"
+  Subscriber:
+    created_at: "Datetime: Timestamp of creation"
+    email: "String: Subscriber's email address"
+    feed_url: "String: URL for subscriber's unique RSS Feed"
+    has_downloads: "Boolean: Subscriber has downloaded at least one episode"
+    last_notified_at: "Datetime: Timestamp of when subscriber was last emailed"
+    status: "String: Email notification status - default, subscribed, or unsubscribed"
+    subscribe_url: "String: URL for subscriber's private landing page"
+    updated_at: "Datetime: Timestamp of last update"
+    show: "Show"
+  ShowAnalytics:
+    downloads: "Array: An array of download counts per day"
+    end_date: "String: Ending date of the analytics date range"
+    start_date: "String: Starting date of the analytics date range"
+    show: "Show"
+  EpisodesAnalytics:
+    end_date: "String"
+    episodes: "Array"
+    start_date: "String"
+    show: "Show"
+  EpisodeAnalytics:
+    downloads: "Array: An array of download counts per day"
+    end_date: "String: Ending date of the analytics date range"
+    start_date: "String: Starting date of the analytics date range"
+    episode: "Episode"
+  AudioUpload:
+    audio_url: "String: URL of your audio file after uploading is complete. To be used when creating or updating an episode"
+    content_type: "String: Content type of the file to upload. audio/mpeg, audio/wav, etc"
+    expires_in: "Integer: Amount of time in seconds before the authorized upload URL expires"
+    upload_url: "String: Endpoint URL to upload your audio file to using HTTP PUT"
+  Webhook:
+    created_at: "String: Timestamp of creation"
+    event_name: "String: Name of webhook event"
+    updated_at: "String: Timestamp of last update"
+    url: "String: Target URL for webhook delivery"
+    user: "User"
+    show: "Show"

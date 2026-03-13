@@ -1,0 +1,23 @@
+{
+  "data": [
+    {
+      "id": "3056098",
+      "type": "episode",
+      "attributes": {
+        "title": "How To Roast Coffee"
+      }
+    },
+    {
+      "id": "3056099",
+      "type": "episode",
+      "attributes": {
+        "title": "The Effects of Caffeine"
+      }
+    }
+  ],
+  "meta": {
+    "currentPage": 1,
+    "totalPages": 2,
+    "totalCount": 8
+  }
+}

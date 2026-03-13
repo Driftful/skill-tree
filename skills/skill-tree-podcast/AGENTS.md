@@ -1,1 +1,0 @@
-Always use the skill-tree-podcast skill defined in `SKILL.md`.
