@@ -28,7 +28,7 @@ jobs:
       - name: Validate feed redirect
         run: |
           test -f skills/skill-tree-podcast/site/_redirects
-          rg '^/feed\.xml\s+https://feeds\.transistor\.fm/skill-tree\s+302!$' skills/skill-tree-podcast/site/_redirects
+          grep -Eq '^/feed\.xml[[:space:]]+https://feeds\.transistor\.fm/skill-tree[[:space:]]+302!$' skills/skill-tree-podcast/site/_redirects
 
       - name: Deploy to Netlify with CLI
         run: npx --yes netlify-cli deploy --dir=skills/skill-tree-podcast/site --prod --site="$NETLIFY_SITE_ID" --auth="$NETLIFY_AUTH_TOKEN"
