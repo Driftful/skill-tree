@@ -1,7 +1,7 @@
 ---
 number: 0
 title: "They're All Markdown Files"
-status: draft
+status: published
 hosts:
   - neil-roberts
   - nick-nisi
@@ -12,7 +12,8 @@ publishing:
   type: trailer
   audio_url: https://transistorupload.s3.amazonaws.com/070ab8d3e9d650b7537858f25392fcc3.mp3
   episode_id: 3088081
-  status: draft
+  status: published
+  published_at: 2026-03-13T14:29:57.199Z
   share_url: https://share.transistor.fm/s/f7997d9f
   transcript_url: https://share.transistor.fm/s/f7997d9f/transcript
 ---

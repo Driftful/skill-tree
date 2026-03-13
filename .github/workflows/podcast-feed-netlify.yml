@@ -19,19 +19,13 @@ jobs:
         with:
           node-version: "20"
 
-      - name: Copy static site config
-        run: |
-          rm -rf skills/skill-tree-podcast/site
-          mkdir -p skills/skill-tree-podcast/site
-          cp -R assets/site/. skills/skill-tree-podcast/site/
-
       - name: Validate feed redirect
         run: |
-          test -f skills/skill-tree-podcast/site/_redirects
-          grep -Eq '^/feed\.xml[[:space:]]+https://feeds\.transistor\.fm/skill-tree[[:space:]]+302!$' skills/skill-tree-podcast/site/_redirects
+          test -f assets/site/_redirects
+          grep -Eq '^/feed\.xml[[:space:]]+https://feeds\.transistor\.fm/skill-tree[[:space:]]+302!$' assets/site/_redirects
 
       - name: Deploy to Netlify with CLI
-        run: npx --yes netlify-cli deploy --dir=skills/skill-tree-podcast/site --prod --site="$NETLIFY_SITE_ID" --auth="$NETLIFY_AUTH_TOKEN"
+        run: npx --yes netlify-cli deploy --dir=assets/site --prod --site="$NETLIFY_SITE_ID" --auth="$NETLIFY_AUTH_TOKEN"
         env:
           NETLIFY_AUTH_TOKEN: ${{ secrets.NETLIFY_AUTH_TOKEN }}
           NETLIFY_SITE_ID: ${{ secrets.NETLIFY_SITE_ID }}
