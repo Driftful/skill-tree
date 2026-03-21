@@ -9,6 +9,8 @@ description: Helps users explore The Skill Tree podcast, a weekly show about bui
 
 A weekly show about building effective agentic experiences.
 
+[Podcast Listing](https://podcastindex.org/podcast/7761170) | [RSS feed](https://skilltree.fm/feed.xml)
+
 ## Explore The Show
 
 - `references/episodes/` for episode records and summaries
