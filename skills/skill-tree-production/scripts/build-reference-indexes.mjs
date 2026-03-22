@@ -819,11 +819,15 @@ function renderCollectionHub({
   if (propertyNamespaces.length > 0) {
     lines.push("## Property Indexes", "");
     for (const bucket of propertyNamespaces) {
+      const valueList = [...bucket.values.values()]
+        .map((valueBucket) => valueBucket.valueLabel)
+        .sort(compareStrings)
+        .join(", ");
       lines.push(
         `- [${bucket.property}](${relativeLink(
           outputPath,
           path.join(referencesRoot, collection, bucket.property, generationRules.folderIndexName),
-        )}) - ${formatCount(bucket.values.size, "value")}`,
+        )}) - ${valueList}`,
       );
     }
     lines.push("");

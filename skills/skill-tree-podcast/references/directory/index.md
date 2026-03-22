@@ -10,7 +10,7 @@ This collection contains 18 references in `directory/`.
 
 ## Property Indexes
 
-- [kind](./kind/index.md) - 5 values
+- [kind](./kind/index.md) - framework, organization, product, skill, tool
 
 ## Records
 
