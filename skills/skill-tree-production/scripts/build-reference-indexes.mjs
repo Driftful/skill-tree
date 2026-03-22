@@ -816,6 +816,19 @@ function renderCollectionHub({
     "",
   ];
 
+  if (propertyNamespaces.length > 0) {
+    lines.push("## Property Indexes", "");
+    for (const bucket of propertyNamespaces) {
+      lines.push(
+        `- [${bucket.property}](${relativeLink(
+          outputPath,
+          path.join(referencesRoot, collection, bucket.property, generationRules.folderIndexName),
+        )}) - ${formatCount(bucket.values.size, "value")}`,
+      );
+    }
+    lines.push("");
+  }
+
   if (records.length > 0) {
     lines.push("## Records", "");
     for (const record of records) {
@@ -826,19 +839,6 @@ function renderCollectionHub({
           outputPath,
           record.filePath,
         )})${suffix}`,
-      );
-    }
-    lines.push("");
-  }
-
-  if (propertyNamespaces.length > 0) {
-    lines.push("## Property Indexes", "");
-    for (const bucket of propertyNamespaces) {
-      lines.push(
-        `- [${bucket.property}](${relativeLink(
-          outputPath,
-          path.join(referencesRoot, collection, bucket.property, generationRules.folderIndexName),
-        )}) - ${formatCount(bucket.values.size, "value")}`,
       );
     }
     lines.push("");

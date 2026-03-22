@@ -8,6 +8,10 @@ generate_usage_pages: true
 
 This collection contains 18 references in `directory/`.
 
+## Property Indexes
+
+- [kind](./kind/index.md) - 5 values
+
 ## Records
 
 - [Agent Zero](./agent-zero.md) - Open source agent framework and computer assistant environment for building and experimenting with autonomous workflows.
@@ -28,7 +32,3 @@ This collection contains 18 references in `directory/`.
 - [Tessl](./tessl.md) - Package manager and registry for agent skills, including distribution and evaluation-related workflows for reusable skill packages.
 - [Visual Studio Code](./visual-studio-code.md) - Open source code editor from Microsoft that serves as a baseline comparison point for modern developer tooling.
 - [Wispr Flow](./wispr-flow.md) - Voice dictation tool used to turn spoken input into text for writing and idea capture workflows.
-
-## Property Indexes
-
-- [kind](./kind/index.md) - 5 values
