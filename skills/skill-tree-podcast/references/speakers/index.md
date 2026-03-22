@@ -1,6 +1,10 @@
+---
+generate_usage_pages: true
+---
+
 # Speakers
 
-Generated hub for 2 references in `speakers/`.
+This collection contains 2 references in `speakers/`.
 
 ## Records
 

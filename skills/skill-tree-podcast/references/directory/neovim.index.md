@@ -1,10 +1,10 @@
 # Neovim Usage
 
-Generated usage page for [Neovim](./neovim.md).
+This page shows where [Neovim](./neovim.md) appears.
 
 - [Back to directory](./index.md)
 - [kind: tool](./kind/tool.index.md)
 
 ## Appears In
 
-- [000: They're All Markdown Files](../episodes/000-theyre-all-markdown-files.md) - linked
+- [000 Theyre All Markdown Files](../transcripts/000-theyre-all-markdown-files.md) - linked

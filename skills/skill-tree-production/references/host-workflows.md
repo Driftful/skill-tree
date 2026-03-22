@@ -74,19 +74,20 @@ Before any upload, treat embedded MP3 metadata as part of the local publish arti
 1. Start the episode locally with the intake workflow.
 2. Clean and enrich the transcript.
 3. Finalize local metadata such as title, optional local summary for ID3 tagging, show notes in the episode Markdown body, transcript path, speaker references, directory entries, and `## Episode Chapters` labels when available.
-4. When the user provides an MP3 path outside the repo, perform the same local audio preparation regardless of whether the next remote step is create or replace.
-5. Inspect that local file for existing tags and chapters before upload.
-6. If the file is missing required tags, has stale tags, or lacks expected chapters, tag that local file using the episode front matter, show metadata in `data/show.md`, the episode Markdown body, and the `## Episode Chapters` section.
-7. Write standard ID3 fields first, then add podcast-identification frames, then import chapter markers.
-8. Verify the tagged file locally before upload.
-9. Upload the tagged MP3 with `node scripts/transistor-fm.mjs episodes upload --file <path>`.
-10. Save the returned audio URL into the episode front matter as `publishing.audio_url`.
-11. If the user explicitly asks to create the hosted episode and no `publishing.episode_id` exists yet, read the provider show ID from `data/show.md` and run `node scripts/transistor-fm.mjs episodes create --show-id <show-id-from-show-md> ...`.
-12. Save the returned remote episode ID as `publishing.episode_id`, along with any returned `share_url`, `transcript_url`, or current remote `status`.
-13. If the user explicitly asks to replace hosted audio for an existing episode, reuse `publishing.audio_url` with `node scripts/transistor-fm.mjs episodes update --id <episode-id> --audio-url <audio-url>` and wait for remote processing to finish.
-14. If metadata changes after the remote create or audio replacement, inspect the local MP3 again, re-tag it if needed, then run `node scripts/transistor-fm.mjs episodes update --id <episode-id> ...`.
-15. Any time a transcript is sent during `episodes create` or `episodes update`, save the returned `transcript_url` into episode front matter as `publishing.transcript_url` when present.
-16. When the user explicitly asks to publish or schedule the episode, run `node scripts/transistor-fm.mjs episodes publish --id <episode-id> --status ...`.
+4. Run `node skills/skill-tree-production/scripts/build-reference-indexes.mjs` to refresh committed episode, speaker, transcript, and directory indexes once the local metadata is stable.
+5. When the user provides an MP3 path outside the repo, perform the same local audio preparation regardless of whether the next remote step is create or replace.
+6. Inspect that local file for existing tags and chapters before upload.
+7. If the file is missing required tags, has stale tags, or lacks expected chapters, tag that local file using the episode front matter, show metadata in `data/show.md`, the episode Markdown body, and the `## Episode Chapters` section.
+8. Write standard ID3 fields first, then add podcast-identification frames, then import chapter markers.
+9. Verify the tagged file locally before upload.
+10. Upload the tagged MP3 with `node scripts/transistor-fm.mjs episodes upload --file <path>`.
+11. Save the returned audio URL into the episode front matter as `publishing.audio_url`.
+12. If the user explicitly asks to create the hosted episode and no `publishing.episode_id` exists yet, read the provider show ID from `data/show.md` and run `node scripts/transistor-fm.mjs episodes create --show-id <show-id-from-show-md> ...`.
+13. Save the returned remote episode ID as `publishing.episode_id`, along with any returned `share_url`, `transcript_url`, or current remote `status`.
+14. If the user explicitly asks to replace hosted audio for an existing episode, reuse `publishing.audio_url` with `node scripts/transistor-fm.mjs episodes update --id <episode-id> --audio-url <audio-url>` and wait for remote processing to finish.
+15. If metadata changes after the remote create or audio replacement, inspect the local MP3 again, re-tag it if needed, then run `node scripts/transistor-fm.mjs episodes update --id <episode-id> ...`.
+16. Any time a transcript is sent during `episodes create` or `episodes update`, save the returned `transcript_url` into episode front matter as `publishing.transcript_url` when present.
+17. When the user explicitly asks to publish or schedule the episode, run `node scripts/transistor-fm.mjs episodes publish --id <episode-id> --status ...`.
 
 ### Local Audio Tagging Workflow
 

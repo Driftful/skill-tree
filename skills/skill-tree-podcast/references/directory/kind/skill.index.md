@@ -1,6 +1,6 @@
 # Directory: skill
 
-Generated lens for 2 entries with `kind: skill`.
+This page lists 2 entries with `kind: skill`.
 
 - [Back to kind index](./index.md)
 - [Back to directory](../index.md)

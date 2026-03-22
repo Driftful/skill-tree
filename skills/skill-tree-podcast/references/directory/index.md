@@ -1,6 +1,12 @@
+---
+property_indexes:
+  - "kind"
+generate_usage_pages: true
+---
+
 # Directory
 
-Generated hub for 18 references in `directory/`.
+This collection contains 18 references in `directory/`.
 
 ## Records
 

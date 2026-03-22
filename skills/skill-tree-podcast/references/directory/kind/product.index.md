@@ -1,6 +1,6 @@
 # Directory: product
 
-Generated lens for 6 entries with `kind: product`.
+This page lists 6 entries with `kind: product`.
 
 - [Back to kind index](./index.md)
 - [Back to directory](../index.md)

@@ -86,3 +86,4 @@ Do not wait for the transcript, polished title, or final summary before creating
 Directory entries may be added later during transcript enrichment. Topics are curated only in the separate topic-curation workflow.
 Remote episode creation should happen later, only when the local metadata is mature and the user explicitly asks to create or publish the hosted episode.
 Once the episode metadata is mature and a local MP3 exists, tag the local file before upload rather than treating embedded audio metadata as a post-upload concern.
+Regenerating committed reference indexes is also a later production step after transcript enrichment and metadata finalization, not part of the initial intake pass.

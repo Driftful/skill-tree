@@ -13,15 +13,6 @@ A weekly show about building effective agentic experiences.
 
 ## Explore The Show
 
-- `references/episodes/` for episode records and summaries
-- `references/speakers/` for host and guest profiles
-- `references/transcripts/` for episode transcripts
-- `references/directory/` for reusable entries that appear across episodes, including products, tools, frameworks, organizations, and skills
-- `references/topics/` for topic pages spanning the broader podcast corpus
-
-## Indexes
-
-- `references/episodes/index.md` for the generated episode hub
-- `references/speakers/index.md` for speaker profiles plus generated appearance pages
-- `references/directory/index.md` for the directory hub and reusable-entry navigation
-- `references/directory/kind/index.md` for generated directory lenses by `kind`
+- `references/episodes/index.md` for the episode catalog, summaries, and links into transcripts
+- `references/speakers/index.md` for host and guest pages, plus where each person appears
+- `references/directory/index.md` for shared things mentioned on the show, grouped into reusable reference pages

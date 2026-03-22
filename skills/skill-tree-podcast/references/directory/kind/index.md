@@ -1,6 +1,6 @@
 # Directory by kind
 
-Generated namespace for 5 values under `directory/kind/`.
+This index groups `directory` references by `kind` across 5 values.
 
 - [Back to directory](../index.md)
 

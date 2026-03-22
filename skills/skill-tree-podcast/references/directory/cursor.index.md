@@ -1,10 +1,10 @@
 # Cursor Usage
 
-Generated usage page for [Cursor](./cursor.md).
+This page shows where [Cursor](./cursor.md) appears.
 
 - [Back to directory](./index.md)
 - [kind: product](./kind/product.index.md)
 
 ## Appears In
 
-- [000: They're All Markdown Files](../episodes/000-theyre-all-markdown-files.md) - linked
+- [000 Theyre All Markdown Files](../transcripts/000-theyre-all-markdown-files.md) - linked

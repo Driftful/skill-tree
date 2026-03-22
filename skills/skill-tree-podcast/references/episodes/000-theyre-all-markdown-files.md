@@ -6,7 +6,7 @@ hosts:
   - neil-roberts
   - nick-nisi
 guests: []
-transcript: data/transcripts/000-theyre-all-markdown-files.md
+transcript: references/transcripts/000-theyre-all-markdown-files.md
 topics: []
 publishing:
   type: trailer

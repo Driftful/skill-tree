@@ -1,6 +1,6 @@
 # Directory: tool
 
-Generated lens for 7 entries with `kind: tool`.
+This page lists 7 entries with `kind: tool`.
 
 - [Back to kind index](./index.md)
 - [Back to directory](../index.md)

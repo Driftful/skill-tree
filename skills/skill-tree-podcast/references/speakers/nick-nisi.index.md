@@ -1,6 +1,6 @@
 # Nick Nisi Usage
 
-Generated usage page for [Nick Nisi](./nick-nisi.md).
+This page shows where [Nick Nisi](./nick-nisi.md) appears.
 
 - [Back to speakers](./index.md)
 

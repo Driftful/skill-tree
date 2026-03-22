@@ -1,6 +1,21 @@
+---
+display_title: "${number|pad:3}: $title"
+relationships:
+  -
+    property: "hosts"
+    target_collection: "speakers"
+    type: "speaker-appearance"
+    relation_label: "host"
+  -
+    property: "guests"
+    target_collection: "speakers"
+    type: "speaker-appearance"
+    relation_label: "guest"
+---
+
 # Episodes
 
-Generated hub for 1 reference in `episodes/`.
+This collection contains 1 reference in `episodes/`.
 
 ## Records
 

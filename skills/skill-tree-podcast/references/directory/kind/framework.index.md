@@ -1,6 +1,6 @@
 # Directory: framework
 
-Generated lens for 2 entries with `kind: framework`.
+This page lists 2 entries with `kind: framework`.
 
 - [Back to kind index](./index.md)
 - [Back to directory](../index.md)

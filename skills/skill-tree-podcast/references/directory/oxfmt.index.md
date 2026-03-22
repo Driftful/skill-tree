@@ -1,10 +1,10 @@
 # Oxfmt Usage
 
-Generated usage page for [Oxfmt](./oxfmt.md).
+This page shows where [Oxfmt](./oxfmt.md) appears.
 
 - [Back to directory](./index.md)
 - [kind: tool](./kind/tool.index.md)
 
 ## Appears In
 
-- [000: They're All Markdown Files](../episodes/000-theyre-all-markdown-files.md) - linked
+- [000 Theyre All Markdown Files](../transcripts/000-theyre-all-markdown-files.md) - linked

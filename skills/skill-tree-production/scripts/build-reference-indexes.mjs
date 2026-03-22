@@ -10,49 +10,56 @@ const execFileAsync = promisify(execFile);
 
 const scriptFile = fileURLToPath(import.meta.url);
 const scriptDir = path.dirname(scriptFile);
-const skillRoot = path.resolve(scriptDir, "..");
-const referencesRoot = path.join(skillRoot, "references");
-const parserScript = path.join(skillRoot, "scripts", "parse-markdown-json.py");
+const hostSkillRoot = path.resolve(scriptDir, "..");
+let cliArguments;
+try {
+  cliArguments = parseCliArguments(process.argv.slice(2));
+} catch (error) {
+  process.stderr.write(`${error.message}\n`);
+  process.exit(1);
+}
+
+const targetDirectory = cliArguments.targetDirectory;
+const referencesRoot = targetDirectory;
+const parserScript = path.join(hostSkillRoot, "scripts", "parse-markdown-json.py");
 
 const generationRules = {
   folderIndexName: "index.md",
   entityIndexSuffix: ".index.md",
-  propertyNamespaceAllowlist: {
-    directory: new Set(["kind"]),
-  },
-  entityUsageCollectionAllowlist: new Set(["directory", "speakers"]),
-  shouldGeneratePropertyNamespace({ collection, property, valueCount }) {
-    return (
-      valueCount > 0 &&
-      this.propertyNamespaceAllowlist[collection]?.has(property) === true
-    );
-  },
-  shouldGenerateEntityUsagePage({ collection, inboundReferenceCount }) {
-    return (
-      inboundReferenceCount > 0 &&
-      this.entityUsageCollectionAllowlist.has(collection)
-    );
-  },
 };
 
-const frontmatterRelationshipRules = [
-  {
-    sourceCollection: "episodes",
-    property: "hosts",
-    targetCollection: "speakers",
-    type: "speaker-appearance",
-    relationLabel: "host",
-  },
-  {
-    sourceCollection: "episodes",
-    property: "guests",
-    targetCollection: "speakers",
-    type: "speaker-appearance",
-    relationLabel: "guest",
-  },
-];
+const mode = cliArguments.mode;
 
-const mode = process.argv.includes("--check") ? "check" : "write";
+function usageMessage() {
+  return "Usage: node scripts/build-reference-indexes.mjs [--check] <target-directory>";
+}
+
+function parseCliArguments(argv) {
+  const positional = [];
+  let mode = "write";
+
+  for (const arg of argv) {
+    if (arg === "--check") {
+      mode = "check";
+      continue;
+    }
+
+    if (arg.startsWith("-")) {
+      throw new Error(`Unknown argument: ${arg}\n${usageMessage()}`);
+    }
+
+    positional.push(arg);
+  }
+
+  if (positional.length !== 1) {
+    throw new Error(usageMessage());
+  }
+
+  return {
+    mode,
+    targetDirectory: path.resolve(process.cwd(), positional[0]),
+  };
+}
 
 function keyFor(collection, slug) {
   return `${collection}/${slug}`;
@@ -91,7 +98,268 @@ function ensureArray(value) {
   return [value];
 }
 
+function isPlainObject(value) {
+  return value != null && typeof value === "object" && !Array.isArray(value);
+}
+
+function formatYamlScalar(value) {
+  if (typeof value === "string") return JSON.stringify(value);
+  if (typeof value === "number" || typeof value === "boolean") return String(value);
+  if (value == null) return "null";
+  return JSON.stringify(String(value));
+}
+
+function formatYamlLines(value, indent = 0) {
+  const spaces = " ".repeat(indent);
+
+  if (Array.isArray(value)) {
+    if (value.length === 0) return [`${spaces}[]`];
+
+    const lines = [];
+    for (const item of value) {
+      if (Array.isArray(item) || isPlainObject(item)) {
+        lines.push(`${spaces}-`);
+        lines.push(...formatYamlLines(item, indent + 2));
+      } else {
+        lines.push(`${spaces}- ${formatYamlScalar(item)}`);
+      }
+    }
+    return lines;
+  }
+
+  if (isPlainObject(value)) {
+    const entries = Object.entries(value);
+    if (entries.length === 0) return [`${spaces}{}`];
+
+    const lines = [];
+    for (const [key, child] of entries) {
+      if (Array.isArray(child) || isPlainObject(child)) {
+        lines.push(`${spaces}${key}:`);
+        lines.push(...formatYamlLines(child, indent + 2));
+      } else {
+        lines.push(`${spaces}${key}: ${formatYamlScalar(child)}`);
+      }
+    }
+    return lines;
+  }
+
+  return [`${spaces}${formatYamlScalar(value)}`];
+}
+
+function formatFrontmatter(frontmatter) {
+  if (!isPlainObject(frontmatter) || Object.keys(frontmatter).length === 0) {
+    return "";
+  }
+
+  return `---\n${formatYamlLines(frontmatter).join("\n")}\n---\n\n`;
+}
+
+function emptyCollectionConfig(frontmatter = {}) {
+  return {
+    frontmatter,
+    displayTitle: null,
+    propertyIndexes: [],
+    relationshipRules: [],
+    generateUsagePages: false,
+    usageContextCollection: null,
+  };
+}
+
+function normalizeStringList(value) {
+  const values = [];
+  const seen = new Set();
+
+  for (const item of ensureArray(value)) {
+    const normalized = String(item).trim();
+    if (!normalized || seen.has(normalized)) continue;
+    seen.add(normalized);
+    values.push(normalized);
+  }
+
+  return values;
+}
+
+function normalizeRelationshipRules({ collection, frontmatter, warnings }) {
+  const rules = [];
+
+  for (const entry of ensureArray(frontmatter.relationships)) {
+    if (!isPlainObject(entry)) {
+      warnings.push(
+        `Ignored invalid relationship config on ${collection}/index.md: expected an object entry`,
+      );
+      continue;
+    }
+
+    const property =
+      typeof entry.property === "string" ? entry.property.trim() : "";
+    const targetCollection =
+      typeof entry.target_collection === "string"
+        ? entry.target_collection.trim()
+        : "";
+    if (!property || !targetCollection) {
+      warnings.push(
+        `Ignored invalid relationship config on ${collection}/index.md: expected "property" and "target_collection"`,
+      );
+      continue;
+    }
+
+    const type =
+      typeof entry.type === "string" && entry.type.trim()
+        ? entry.type.trim()
+        : "frontmatter-relationship";
+    const relationLabel =
+      typeof entry.relation_label === "string" && entry.relation_label.trim()
+        ? entry.relation_label.trim()
+        : property;
+
+    rules.push({
+      sourceCollection: collection,
+      property,
+      targetCollection,
+      type,
+      relationLabel,
+    });
+  }
+
+  return rules;
+}
+
+function normalizeGenerateUsagePages({ collection, frontmatter, warnings }) {
+  const value = frontmatter.generate_usage_pages;
+  if (value == null) return false;
+  if (typeof value === "boolean") return value;
+
+  warnings.push(
+    `Ignored invalid generate_usage_pages config on ${collection}/index.md: expected a boolean`,
+  );
+  return false;
+}
+
+function normalizeDisplayTitle({ collection, frontmatter, warnings }) {
+  const value = frontmatter.display_title;
+  if (value == null) return null;
+  if (typeof value === "string" && value.trim()) return value.trim();
+
+  warnings.push(
+    `Ignored invalid display_title config on ${collection}/index.md: expected a non-empty string`,
+  );
+  return null;
+}
+
+function normalizeUsageContextCollection({ collection, frontmatter, warnings }) {
+  const value = frontmatter.usage_context_collection;
+  if (value == null) return null;
+  if (typeof value === "string" && value.trim()) return value.trim();
+
+  warnings.push(
+    `Ignored invalid usage_context_collection config on ${collection}/index.md: expected a non-empty string`,
+  );
+  return null;
+}
+
+function normalizeCollectionConfig({ collection, frontmatter, warnings }) {
+  const normalizedFrontmatter = isPlainObject(frontmatter) ? frontmatter : {};
+
+  return {
+    frontmatter: normalizedFrontmatter,
+    displayTitle: normalizeDisplayTitle({
+      collection,
+      frontmatter: normalizedFrontmatter,
+      warnings,
+    }),
+    propertyIndexes: normalizeStringList(normalizedFrontmatter.property_indexes),
+    relationshipRules: normalizeRelationshipRules({
+      collection,
+      frontmatter: normalizedFrontmatter,
+      warnings,
+    }),
+    generateUsagePages: normalizeGenerateUsagePages({
+      collection,
+      frontmatter: normalizedFrontmatter,
+      warnings,
+    }),
+    usageContextCollection: normalizeUsageContextCollection({
+      collection,
+      frontmatter: normalizedFrontmatter,
+      warnings,
+    }),
+  };
+}
+
+function resolveUsageContextKey({
+  record,
+  sourceKey,
+  recordsByKey,
+  collectionConfig,
+}) {
+  const contextCollection = collectionConfig.usageContextCollection;
+  if (!contextCollection) return sourceKey;
+
+  const contextKey = keyFor(contextCollection, record.slug);
+  return recordsByKey.has(contextKey) ? contextKey : sourceKey;
+}
+
+function formatDisplayTitleValue(value) {
+  if (Array.isArray(value)) {
+    return collapseWhitespace(value.join(", "));
+  }
+
+  if (isPlainObject(value)) {
+    return collapseWhitespace(JSON.stringify(value));
+  }
+
+  return collapseWhitespace(value);
+}
+
+function applyDisplayTitleFormatter(value, formatter) {
+  if (!formatter) return formatDisplayTitleValue(value);
+
+  const [name, argument] = formatter.split(":");
+  if (name === "pad") {
+    const width = Number.parseInt(argument, 10);
+    if (Number.isInteger(width) && width > 0) {
+      return String(value).padStart(width, "0");
+    }
+  }
+
+  return formatDisplayTitleValue(value);
+}
+
+function renderDisplayTitleTemplate(template, metadata) {
+  let usedPlaceholder = false;
+  const rendered = template.replace(
+    /\$\{([a-zA-Z0-9_]+)(?:\|([^}]+))?\}|\$([a-zA-Z0-9_]+)/g,
+    (_, bracketedKey, formatter, plainKey) => {
+      usedPlaceholder = true;
+      const key = bracketedKey || plainKey;
+      const value = metadata[key];
+      if (value == null) return "";
+      return applyDisplayTitleFormatter(value, formatter);
+    },
+  );
+
+  if (!usedPlaceholder) return "";
+  return collapseWhitespace(rendered);
+}
+
 function getRecordDisplayTitle(record) {
+  const configuredTitle = record.collectionConfig?.displayTitle;
+  if (configuredTitle) {
+    if (configuredTitle.includes("$")) {
+      const renderedTitle = renderDisplayTitleTemplate(
+        configuredTitle,
+        record.metadata,
+      );
+      if (renderedTitle) return renderedTitle;
+    } else {
+      const configuredValue = record.metadata[configuredTitle];
+      if (configuredValue != null) {
+        const normalizedValue = formatDisplayTitleValue(configuredValue);
+        if (normalizedValue) return normalizedValue;
+      }
+    }
+  }
+
   if (record.collection === "episodes") {
     const episodeNumber = record.metadata.number;
     const episodeTitle = record.metadata.title || toTitle(record.slug);
@@ -176,6 +444,20 @@ async function parseMarkdownFile(filePath) {
   }
 }
 
+async function assertTargetDirectory() {
+  try {
+    const stat = await fs.stat(targetDirectory);
+    if (!stat.isDirectory()) {
+      throw new Error(`${targetDirectory} is not a directory`);
+    }
+  } catch (error) {
+    if (error.code === "ENOENT") {
+      throw new Error(`Target directory not found: ${targetDirectory}`);
+    }
+    throw error;
+  }
+}
+
 async function discoverSourceCollections() {
   const entries = await fs.readdir(referencesRoot, { withFileTypes: true });
   const collections = [];
@@ -184,6 +466,17 @@ async function discoverSourceCollections() {
     if (!entry.isDirectory()) continue;
     const collection = entry.name;
     const collectionDir = path.join(referencesRoot, collection);
+    const indexFilePath = path.join(collectionDir, generationRules.folderIndexName);
+    let indexFrontmatter = {};
+    let hasIndexFile = false;
+    try {
+      await fs.access(indexFilePath);
+      hasIndexFile = true;
+      const parsedIndex = await parseMarkdownFile(indexFilePath);
+      indexFrontmatter = parsedIndex.frontmatter || {};
+    } catch (error) {
+      if (error.code !== "ENOENT") throw error;
+    }
     const files = (await fs.readdir(collectionDir, { withFileTypes: true }))
       .filter(
         (child) =>
@@ -195,7 +488,14 @@ async function discoverSourceCollections() {
       .map((child) => path.join(collectionDir, child.name))
       .sort(compareStrings);
 
-    collections.push({ collection, collectionDir, files });
+    collections.push({
+      collection,
+      collectionDir,
+      files,
+      indexFilePath,
+      indexFrontmatter,
+      hasIndexFile,
+    });
   }
 
   collections.sort((a, b) => compareStrings(a.collection, b.collection));
@@ -207,12 +507,28 @@ async function loadGraph() {
   const records = [];
   const recordsByKey = new Map();
   const warnings = [];
+  const collectionConfigs = new Map();
+  const relationshipRules = [];
+
+  for (const { collection, indexFrontmatter, hasIndexFile } of discoveredCollections) {
+    const config = hasIndexFile
+      ? normalizeCollectionConfig({
+          collection,
+          frontmatter: indexFrontmatter,
+          warnings,
+        })
+      : emptyCollectionConfig();
+    collectionConfigs.set(collection, config);
+    relationshipRules.push(...config.relationshipRules);
+  }
 
   for (const { collection, files } of discoveredCollections) {
     for (const filePath of files) {
       const slug = path.basename(filePath, ".md");
       const parsed = await parseMarkdownFile(filePath);
       const metadata = parsed.frontmatter || {};
+      const collectionConfig =
+        collectionConfigs.get(collection) || emptyCollectionConfig();
 
       if (collection !== "transcripts" && Object.keys(metadata).length === 0) {
         throw new Error(`Missing YAML frontmatter in ${filePath}`);
@@ -225,6 +541,7 @@ async function loadGraph() {
         metadata,
         markdown: parsed.markdown || "",
         html: parsed.html || "",
+        collectionConfig,
       };
 
       records.push(record);
@@ -238,8 +555,7 @@ async function loadGraph() {
 
   for (const record of records) {
     const sourceKey = keyFor(record.collection, record.slug);
-
-    for (const rule of frontmatterRelationshipRules) {
+    for (const rule of relationshipRules) {
       if (record.collection !== rule.sourceCollection) continue;
       for (const targetSlug of ensureArray(record.metadata[rule.property])) {
         const targetKey = keyFor(rule.targetCollection, targetSlug);
@@ -296,11 +612,12 @@ async function loadGraph() {
         sourceKey,
         targetKey,
         relationLabel: "linked",
-        contextKey:
-          record.collection === "transcripts" &&
-          recordsByKey.has(keyFor("episodes", record.slug))
-            ? keyFor("episodes", record.slug)
-            : sourceKey,
+        contextKey: resolveUsageContextKey({
+          record,
+          sourceKey,
+          recordsByKey,
+            collectionConfig: record.collectionConfig,
+        }),
       });
     }
   }
@@ -320,7 +637,8 @@ async function loadGraph() {
     inboundByTarget,
     warnings,
     unresolvedLinks,
-    collections: discoveredCollections.map(({ collection }) => collection),
+    collections: discoveredCollections,
+    collectionConfigs,
   };
 }
 
@@ -333,14 +651,15 @@ function extractLocalReferenceLinks(markdown) {
   return links;
 }
 
-function buildPropertyBuckets(records) {
+function buildPropertyBuckets(records, collectionConfigs) {
   const bucketMap = new Map();
 
   for (const record of records) {
-    const allowlist = generationRules.propertyNamespaceAllowlist[record.collection];
-    if (!allowlist) continue;
+    const propertyIndexes =
+      collectionConfigs.get(record.collection)?.propertyIndexes || [];
+    if (propertyIndexes.length === 0) continue;
 
-    for (const property of allowlist) {
+    for (const property of propertyIndexes) {
       const rawValues = ensureArray(record.metadata[property]);
       const normalizedValues =
         rawValues.length > 0
@@ -371,15 +690,7 @@ function buildPropertyBuckets(records) {
     }
   }
 
-  return [...bucketMap.values()]
-    .filter((bucket) =>
-      generationRules.shouldGeneratePropertyNamespace({
-        collection: bucket.collection,
-        property: bucket.property,
-        valueCount: bucket.values.size,
-      }),
-    )
-    .sort((a, b) => {
+  return [...bucketMap.values()].sort((a, b) => {
       const byCollection = compareStrings(a.collection, b.collection);
       if (byCollection !== 0) return byCollection;
       return compareStrings(a.property, b.property);
@@ -401,7 +712,7 @@ function groupRecordsByCollection(records) {
 
 function planOutputs(graph) {
   const collectionRecords = groupRecordsByCollection(graph.records);
-  const propertyBuckets = buildPropertyBuckets(graph.records);
+  const propertyBuckets = buildPropertyBuckets(graph.records, graph.collectionConfigs);
   const propertyBucketsByCollection = new Map();
   for (const bucket of propertyBuckets) {
     const collectionBucket = propertyBucketsByCollection.get(bucket.collection) || [];
@@ -411,10 +722,12 @@ function planOutputs(graph) {
 
   const outputs = new Map();
 
-  for (const collection of graph.collections) {
-    const collectionDir = path.join(referencesRoot, collection);
+  for (const { collection, collectionDir, hasIndexFile } of graph.collections) {
+    if (!hasIndexFile) continue;
     const records = collectionRecords.get(collection) || [];
     const propertyNamespaces = propertyBucketsByCollection.get(collection) || [];
+    const collectionConfig =
+      graph.collectionConfigs.get(collection) || emptyCollectionConfig();
     const outputPath = path.join(collectionDir, generationRules.folderIndexName);
     outputs.set(
       outputPath,
@@ -422,6 +735,7 @@ function planOutputs(graph) {
         collection,
         records,
         propertyNamespaces,
+        frontmatter: collectionConfig.frontmatter,
         outputPath,
       }),
     );
@@ -462,12 +776,9 @@ function planOutputs(graph) {
 
   for (const record of graph.records.sort(compareRecords)) {
     const inboundEdges = graph.inboundByTarget.get(keyFor(record.collection, record.slug)) || [];
-    if (
-      !generationRules.shouldGenerateEntityUsagePage({
-        collection: record.collection,
-        inboundReferenceCount: inboundEdges.length,
-      })
-    ) {
+    const collectionConfig =
+      graph.collectionConfigs.get(record.collection) || emptyCollectionConfig();
+    if (!collectionConfig.generateUsagePages || inboundEdges.length === 0) {
       continue;
     }
 
@@ -481,6 +792,7 @@ function planOutputs(graph) {
       renderEntityUsagePage({
         record,
         inboundEdges,
+        collectionConfig,
         recordsByKey: graph.recordsByKey,
         outputPath,
       }),
@@ -490,11 +802,17 @@ function planOutputs(graph) {
   return outputs;
 }
 
-function renderCollectionHub({ collection, records, propertyNamespaces, outputPath }) {
+function renderCollectionHub({
+  collection,
+  records,
+  propertyNamespaces,
+  frontmatter,
+  outputPath,
+}) {
   const lines = [
     `# ${toDisplayCollectionName(collection)}`,
     "",
-    `Generated hub for ${formatCount(records.length, "reference")} in \`${collection}/\`.`,
+    `This collection contains ${formatCount(records.length, "reference")} in \`${collection}/\`.`,
     "",
   ];
 
@@ -526,7 +844,7 @@ function renderCollectionHub({ collection, records, propertyNamespaces, outputPa
     lines.push("");
   }
 
-  return `${lines.join("\n").trim()}\n`;
+  return `${formatFrontmatter(frontmatter)}${lines.join("\n").trim()}\n`;
 }
 
 function renderPropertyNamespaceIndex({ bucket, outputPath }) {
@@ -537,10 +855,10 @@ function renderPropertyNamespaceIndex({ bucket, outputPath }) {
   const lines = [
     `# ${toDisplayCollectionName(bucket.collection)} by ${bucket.property}`,
     "",
-    `Generated namespace for ${formatCount(
+    `This index groups \`${bucket.collection}\` references by \`${bucket.property}\` across ${formatCount(
       valueBuckets.length,
       "value",
-    )} under \`${bucket.collection}/${bucket.property}/\`.`,
+    )}.`,
     "",
     `- [Back to ${bucket.collection}](../index.md)`,
     "",
@@ -569,7 +887,7 @@ function renderPropertyValuePage({ bucket, valueBucket, outputPath }) {
   const lines = [
     `# ${toDisplayCollectionName(bucket.collection)}: ${valueBucket.valueLabel}`,
     "",
-    `Generated lens for ${formatCount(valueBucket.records.length, "entry", "entries")} with \`${bucket.property}: ${valueBucket.valueLabel}\`.`,
+    `This page lists ${formatCount(valueBucket.records.length, "entry", "entries")} with \`${bucket.property}: ${valueBucket.valueLabel}\`.`,
     "",
     `- [Back to ${bucket.property} index](./index.md)`,
     `- [Back to ${bucket.collection}](../index.md)`,
@@ -592,7 +910,13 @@ function renderPropertyValuePage({ bucket, valueBucket, outputPath }) {
   return `${lines.join("\n").trim()}\n`;
 }
 
-function renderEntityUsagePage({ record, inboundEdges, recordsByKey, outputPath }) {
+function renderEntityUsagePage({
+  record,
+  inboundEdges,
+  collectionConfig,
+  recordsByKey,
+  outputPath,
+}) {
   const groupedContexts = new Map();
 
   for (const edge of inboundEdges) {
@@ -613,17 +937,16 @@ function renderEntityUsagePage({ record, inboundEdges, recordsByKey, outputPath 
   const lines = [
     `# ${getRecordDisplayTitle(record)} Usage`,
     "",
-    `Generated usage page for [${getRecordDisplayTitle(record)}](${relativeLink(
+    `This page shows where [${getRecordDisplayTitle(record)}](${relativeLink(
       outputPath,
       record.filePath,
-    )}).`,
+    )}) appears.`,
     "",
   ];
 
   const relatedPropertyLinks = [];
-  const allowlist = generationRules.propertyNamespaceAllowlist[record.collection];
-  if (allowlist) {
-    for (const property of allowlist) {
+  if (collectionConfig.propertyIndexes.length > 0) {
+    for (const property of collectionConfig.propertyIndexes) {
       const values = ensureArray(record.metadata[property]);
       const normalizedValues =
         values.length > 0 ? values : ["unknown"];
@@ -710,11 +1033,11 @@ async function checkOutputs(outputs, warnings, unresolvedLinks) {
     try {
       const existing = await fs.readFile(outputPath, "utf8");
       if (!compareText(existing, content)) {
-        stale.push(path.relative(skillRoot, outputPath));
+        stale.push(path.relative(targetDirectory, outputPath));
       }
     } catch (error) {
       if (error.code === "ENOENT") {
-        missing.push(path.relative(skillRoot, outputPath));
+        missing.push(path.relative(targetDirectory, outputPath));
       } else {
         throw error;
       }
@@ -725,7 +1048,7 @@ async function checkOutputs(outputs, warnings, unresolvedLinks) {
   const planned = new Set(outputs.keys());
   for (const filePath of existingGeneratedFiles) {
     if (!planned.has(filePath)) {
-      extra.push(path.relative(skillRoot, filePath));
+      extra.push(path.relative(targetDirectory, filePath));
     }
   }
 
@@ -764,6 +1087,7 @@ async function checkOutputs(outputs, warnings, unresolvedLinks) {
 }
 
 async function main() {
+  await assertTargetDirectory();
   const graph = await loadGraph();
   const outputs = planOutputs(graph);
 
@@ -784,7 +1108,10 @@ async function main() {
   }
 
   process.stdout.write(
-    `Generated ${outputs.size} reference index file(s) under skills/skill-tree-podcast/references/\n`,
+    `Generated ${outputs.size} reference index file(s) under ${path.relative(
+      process.cwd(),
+      referencesRoot,
+    ) || "."}\n`,
   );
 }
 
