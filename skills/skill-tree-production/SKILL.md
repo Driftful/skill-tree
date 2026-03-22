@@ -30,7 +30,7 @@ Production workflow and source-of-truth guidance for the product-facing sibling 
 ## Operating Rules
 
 - Treat local files as the source of truth; remote episode creation, updates, and publish actions happen only when the user explicitly asks for them.
-- Before sending show notes or another Markdown-backed description to a hosting provider, parse the source file with `scripts/parse-markdown-json.sh <markdown-file>` and use the returned `html` value rather than raw Markdown.
+- Before sending show notes or another Markdown-backed description to a hosting provider, run `uv run --script skills/skill-tree-podcast/scripts/parse-markdown-json.py <markdown-file>` and use the returned `html` value rather than raw Markdown.
 - Keep the root skill concise and navigation-first; use the reference docs for the detailed workflow for each production step.
 
 ## Reference Docs

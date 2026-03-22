@@ -16,5 +16,12 @@ A weekly show about building effective agentic experiences.
 - `references/episodes/` for episode records and summaries
 - `references/speakers/` for host and guest profiles
 - `references/transcripts/` for episode transcripts
-- `references/directory/` for reusable entries that appear across episodes
+- `references/directory/` for reusable entries that appear across episodes, including products, tools, frameworks, organizations, and skills
 - `references/topics/` for topic pages spanning the broader podcast corpus
+
+## Indexes
+
+- `references/episodes/index.md` for the generated episode hub
+- `references/speakers/index.md` for speaker profiles plus generated appearance pages
+- `references/directory/index.md` for the directory hub and reusable-entry navigation
+- `references/directory/kind/index.md` for generated directory lenses by `kind`
