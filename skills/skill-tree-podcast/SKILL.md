@@ -11,6 +11,12 @@ A weekly show about building effective agentic experiences.
 
 [Podcast Listing](https://podcastindex.org/podcast/7761170) | [RSS feed](https://skilltree.fm/feed.xml)
 
+## Required Companion Skills
+
+Install all sibling podcast-related skills alongside this one. They are required so production, transcript, and hosting tasks can hand off cleanly when needed.
+
+- `skill-tree-production` for local source-of-truth production workflows, transcript enrichment, directory curation, and reference index generation
+
 ## Explore The Show
 
 - `references/episodes/index.md` for the episode catalog, summaries, and links into transcripts
