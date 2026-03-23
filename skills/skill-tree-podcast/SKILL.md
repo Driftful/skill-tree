@@ -39,4 +39,5 @@ Answer these questions in order before opening any file. Stop at the first match
 2. Follow links from that file into narrower indexes or individual records as needed.
 3. Do not read multiple top-level indexes up front.
 4. Do not scan past a "Property Indexes" section into "Records" until you have checked whether a property index applies.
-5. If the indexes do not provide a path, report the gap before using broader search.
+5. To see where a record appears (e.g., which episodes mention it), check for a sibling `.index.md` file. For example, `ideation.md` has a companion `ideation.index.md` that lists episode backreferences.
+6. If the indexes do not provide a path, report the gap before using broader search.
