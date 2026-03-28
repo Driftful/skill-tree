@@ -46,20 +46,18 @@ The placeholder should capture at least:
 - Status: a draft or planning state that makes it clear the entry is incomplete.
 - Hosts: confirmed host list.
 - Guests: confirmed guest list.
-- Summary: `TBD` if unknown. Treat this as local drafting metadata, not as a field that will be sent to the hosting provider.
 - Transcript: a `transcript` field pointing to the relative transcript filename, or `TBD` if it does not exist yet.
-- Directory: an empty `directory: []` array during initial creation.
 - Topics: an empty `topics: []` array during initial creation.
 
 If the user already knows a non-default publishing override, the placeholder may also include a nested `publishing:` block. Otherwise omit it until remote sync work actually begins.
 
 During episode creation, do not attempt to locate transcripts, metadata source files, directory entries, tags, topics, or remote hosting IDs. The creation pass should focus only on establishing the episode record and speaker links.
-Leave `transcript: TBD` until the transcript file exists, and keep both `directory: []` and `topics: []` empty during the initial creation pass.
+Leave `transcript: TBD` until the transcript file exists, and keep `topics: []` empty during the initial creation pass. Directory references are derived later by index-time lookup rather than stored in episode front matter.
 Do not block intake on having an MP3 or embedded audio metadata ready yet. Those happen later, after the local episode metadata is mature enough to drive pre-upload tagging.
 
 Episode placeholders can be front-matter-only. Do not add markdown body filler when there is no substantive narrative content yet.
 
-When show notes exist later, store them in the Markdown body of the episode file rather than a `description` front matter field.
+When show notes exist later, store them in the Markdown body of the episode file rather than a `description` front matter field. The first paragraph of the episode body should act as the summary instead of a dedicated `summary` front matter field.
 
 ## Speaker Profile Workflow
 
@@ -82,7 +80,7 @@ As with episodes, keep these structured fields in front matter whenever possible
 
 ## Operating Principle
 
-Do not wait for the transcript, polished title, or final summary before creating the episode record. The first pass should establish the episode placeholder and the people records, then future passes can fill in transcript-derived metadata.
+Do not wait for the transcript, polished title, or opening summary paragraph before creating the episode record. The first pass should establish the episode placeholder and the people records, then future passes can fill in transcript-derived metadata.
 Directory entries may be added later during transcript enrichment. Topics are curated only in the separate topic-curation workflow.
 Remote episode creation should happen later, only when the local metadata is mature and the user explicitly asks to create or publish the hosted episode.
 Once the episode metadata is mature and a local MP3 exists, tag the local file before upload rather than treating embedded audio metadata as a post-upload concern.

@@ -23,7 +23,7 @@ Use this workflow whenever:
 3. If there is no confident match, begin research to identify the person.
 4. If multiple plausible matches exist, ask the user to disambiguate before continuing.
 5. Once identity is confirmed, summarize the likely match for the user and confirm before writing a new profile.
-6. Continue research to populate the profile.
+6. Continue research to populate the profile, including a proactive attempt to identify the speaker's public GitHub profile.
 7. Create or update the `data/speakers/` profile with verified information and clearly mark anything still unknown as `TBD`.
 
 ## Disambiguation Rule
@@ -61,8 +61,11 @@ Use research to confirm, when available:
 - Preferred display name.
 - Organization, company, or project affiliation.
 - Relevant expertise areas.
+- A matching public GitHub profile.
 - Public links worth including.
 - A concise bio grounded in public facts.
+
+Make a deliberate GitHub lookup for every speaker. If there is a clear public GitHub match, include it. If there is no confident match, omit it rather than guessing.
 
 ## Profile Population Guidance
 
@@ -75,6 +78,10 @@ Typical fields include:
 - Organization or project affiliation.
 - Links or handles.
 - Expertise tags or topics.
+
+Always try to identify the speaker's public GitHub profile during research.
+When a speaker has a clearly identifiable public GitHub profile, include it in `links`.
+If no confident GitHub match can be verified, leave it out rather than adding a speculative link.
 
 If a field cannot be verified, leave it as `TBD` rather than inventing content.
 Derive the slug from the filename rather than storing it in front matter.

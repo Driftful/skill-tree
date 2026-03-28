@@ -41,9 +41,9 @@ Prefer front matter for fields such as:
 - Display name or title.
 - Status.
 - Hosts, guests, and speaker references.
-- Summary or bio.
+- Bio.
 - Organization, links, and handles.
-- Directory references, topics, and expertise areas.
+- Topics and expertise areas.
 - Transcript references and related source references.
 - Publishing-specific IDs, URLs, and override values.
 
@@ -54,12 +54,12 @@ Keep the body optional. Use it for substantive narrative notes, show notes, long
 For podcast publishing:
 
 - episode Markdown bodies should hold the long-form show notes and the text that will be passed to a hosting provider as the episode description
-- episode front matter `summary` is limited to local metadata and MP3 tagging, not a field to send to the hosting provider during remote episode sync
+- the first paragraph of the episode Markdown body acts as the episode summary for local lookup and downstream publishing needs
 - when present, a `## Episode Chapters` section in the episode body should be treated as the canonical source for embedded MP3 chapter labels
 - `data/show.md` should use its Markdown body for the show-level description rather than duplicating that text in front matter
 - do not duplicate long-form descriptions into front matter when the Markdown body is the canonical source
 
-For episode placeholders, prefer explicit structured fields such as `summary: TBD`, `transcript: TBD`, `directory: []`, and `topics: []` over extra boolean flags when the missing state is already obvious from the field value itself.
+For episode placeholders, prefer explicit structured fields such as `transcript: TBD` and `topics: []` over extra boolean flags when the missing state is already obvious from the field value itself.
 
 Avoid aggregate completion flags such as `is_publish_ready`. Prefer direct field values that show what is missing.
 
@@ -115,6 +115,7 @@ For example, show title, album artist, genre, podcast frames, and chapter import
 Do not store these as source-of-truth episode metadata:
 
 - `slug`
+- `summary`
 - `transcript_text`
 - duplicated embedded-audio tag fields that can already be derived from show metadata, episode metadata, or the episode body
 - read-only provider fields such as `duration`, `media_url`, `embed_html`, or `updated_at`
@@ -126,6 +127,8 @@ Keep these three concepts separate:
 - `directory`: reusable named entries that may recur across episodes. This is the cross-episode directory for things like `DeepWiki`, `Claude Code`, `MCP`, `Mastra Code`, or show-specific coined terms.
 - inline transcript links: one-off references that are only useful in local context, such as a specific blog post, article, or niche project mention. These stay embedded directly in transcript prose as Markdown links.
 - `topics`: a small, controlled vocabulary of high-level themes used for corpus-wide grouping and navigation.
+
+Directory membership for episodes should be derived by index-time lookup from linked references in episode and transcript content rather than stored as an explicit `directory` front matter field.
 
 Do not use `topics` for products, companies, repos, articles, or protocol names when a `directory` entry is the more precise fit.
 Do not create standalone files for one-off references unless they later prove to be recurring enough to merit promotion into `data/directory/`.

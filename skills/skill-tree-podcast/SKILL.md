@@ -21,7 +21,7 @@ Do not manually discover podcast content with broad file searches, file globs, r
 
 Answer these questions in order before opening any file. Stop at the first match and open only that file.
 
-1. **Is this about an episode?** (title, number, summary, transcript)
+1. **Is this about an episode?** (title, number, opening paragraph, transcript)
    → `references/episodes/index.md`
 
 2. **Is this about a person?** (host, guest, speaker bio, appearances)
