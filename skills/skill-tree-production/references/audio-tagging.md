@@ -38,7 +38,7 @@ Use `eyeD3` first, then `mp3chaps2`.
 2. Inspect the current file with `uvx eyeD3 -v <file>` and `uvx mp3chaps2 -l <file>` before making upload decisions.
 3. Read `data/show.md` and the episode source file.
 4. Verify that title, summary, and show notes are mature enough for embedding.
-5. If chapter timestamps exist, render them into `<audio-file>.chapters.txt` beside the MP3 using `HH:MM:SS.mmm Title` lines.
+5. If chapter timestamps exist, render them into a sidecar file beside the MP3 using `HH:MM:SS.mmm Title` lines. The sidecar must be named by stripping the `.mp3` extension and appending `.chapters.txt` (e.g., `episode.mp3` → `episode.chapters.txt`, not `episode.mp3.chapters.txt`).
 6. If required tags are missing or stale, use `uvx eyeD3` to write the standard fields.
 7. Use `uvx eyeD3 --plugin=itunes-podcast --add` to mark the file as podcast audio.
 8. Use `uvx mp3chaps2 -i <file>` to import or refresh chapters.

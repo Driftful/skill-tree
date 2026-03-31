@@ -8,3 +8,4 @@ This page shows where [pi.dev](./pi-dev.md) appears.
 ## Appears In
 
 - [000 Theyre All Markdown Files](../transcripts/000-theyre-all-markdown-files.md) - linked
+- [001 Cleaning The Fridge The Heros Journey](../transcripts/001-cleaning-the-fridge-the-heros-journey.md) - linked

@@ -24,7 +24,7 @@ Use this whenever a local MP3 will be uploaded to Transistor, whether the file i
 1. Confirm the file path and inspect the current audio artifact before upload.
 2. Complete any required local metadata or QA steps for the source file.
 3. Verify the finished file locally.
-4. Upload the verified file with `node scripts/transistor-fm.mjs episodes upload --file <file>`.
+4. Upload the verified file with `node scripts/transistor-fm.mjs episodes upload --file <file>`. The CLI shows a filling progress bar during the upload step and prints the resulting `audio_url` when it completes.
 
 Success means all of the following are true:
 

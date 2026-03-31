@@ -8,7 +8,7 @@ Use it to route into the detailed workflow needed for the current production ste
 - New episode setup and intake workflow.
 - Guest profile creation and updates.
 - Episode transcript processing and formatting.
-- Episode metadata updates, including reusable directory entries and inline references.
+- Episode metadata updates, transcript linking to reusable directory entries, and inline references.
 - Pre-upload MP3 tagging, late-stage audio upload, remote episode sync, and publish/schedule actions.
 - Separate topic curation across the full episode set.
 - Build and publish/deploy scripts for GitHub.
@@ -33,12 +33,42 @@ Current working pipeline for transcript creation and cleanup:
 2. Import all tracks into `Descript` and perform the podcast edit there.
 3. Export the edited audio and transcribe it with `MacWhisper`.
 4. Prefer the `Nvidia Parakeet v3` model, which has been the most accurate so far.
-5. Export the transcript from `MacWhisper` as `segments`.
-6. Run the parent repo's `transcript-cleanup` skill against that segmented transcript.
-7. Run the transcript enrichment workflow to identify reusable directory entries and inline one-off references.
-8. Review the generated Markdown review document and edit or approve it before any replacements are applied.
-9. Only after review approval, create or update the needed `data/directory/` files, apply transcript replacements, and update episode `directory:` entries.
-10. Leave topics alone during transcript enrichment and revisit them only in the separate topic-curation workflow.
+5. Export the transcript from `MacWhisper` as `segments` and save to `references/transcripts/[episode].txt`.
+6. Run First-Pass Discovery (see below) to produce the metadata file at `references/in-progress/[episode]-metadata.md`.
+7. Run the parent repo's `transcript-cleanup` skill, passing:
+   - The raw transcript path (e.g., `references/transcripts/001.txt`)
+   - The metadata file path (e.g., `references/in-progress/001-metadata.md`)
+8. Run the transcript enrichment workflow to identify reusable directory entries and inline one-off references.
+
+### First-Pass Discovery
+
+Before running transcript cleanup, perform a first-pass discovery analysis that produces the metadata file. This file becomes read-only input to the cleanup skill.
+
+**Output:** `references/in-progress/[episode]-metadata.md`
+
+**What the metadata file should contain:**
+
+- **Overview** — word count, estimated windows (words ÷ 2000), list of speakers, timestamp format, duration
+- **Chapter Markers** — major topic shifts with timestamps, drafted from scanning the full transcript
+- **Technical Terms** — verified jargon, canonical spellings, and any user-confirmed corrections
+- **Flagged Ambiguities** — unclear speaker attributions, unverified terms that need human clarification
+
+**Process:**
+
+1. Get the transcript line count with `wc -l`.
+2. Read the full transcript using `slice.py --start-line 1 --line-count <total>`.
+3. Identify all technical terms, proper nouns, and domain-specific language.
+4. Verify each term against web search, repository search, and official documentation.
+5. Note major topic shifts with timestamps for chapter markers.
+6. Flag any terms or attributions with < 99% confidence for human clarification.
+7. Write findings to `references/in-progress/[episode]-metadata.md`.
+8. Ask the user to verify flagged terms before proceeding to cleanup.
+
+Pass the metadata file path to transcript cleanup. The cleanup skill will read it for technical terms and chapter markers but will not write to it.
+9. **Canonical name verification** — before generating the review document, verify that product/tool names use their public canonical form (e.g., "TypeScript" not "typescript", "Case" not "case"). Apply the same verification to chapter titles and metadata.
+10. Review the generated Markdown review document and edit or approve it before any replacements are applied.
+11. Only after review approval, create or update the needed `data/directory/` files and apply transcript replacements.
+12. Leave topics alone during transcript enrichment and revisit them only in the separate topic-curation workflow.
 
 Install the cleanup skill with:
 
@@ -57,6 +87,24 @@ Notes:
 - If a one-off reference seems to point at a specific clip, episode, talk, or video, ask the user for the exact target when a generic page would be a guess.
 - Attach links to the text describing the actual referenced artifact or idea, not automatically to the nearest person, show, or product name.
 
+### Working Directories
+
+The indexer excludes certain directories from reference scanning:
+
+- `references/in-progress/` — active episode processing files (metadata, observations, cleaned transcripts)
+- `references/review/` — intermediate review documents staged for approval (no frontmatter required)
+- `references/scratch/` — temporary working files and notes (no frontmatter required)
+
+Files in these directories are not indexed and do not need YAML frontmatter. Use these locations for:
+- First-pass discovery metadata (`[episode]-metadata.md`)
+- Cleanup observations log (`[episode]-observations.md`)
+- In-progress cleaned transcripts (`[episode]-cleaned.md`)
+- Link review documents from enrichment (`[episode]-links.md`)
+- Temporary notes during cleanup or enrichment
+- Draft content not yet ready for the reference index
+
+All other Markdown files under `references/` must have valid YAML frontmatter (except raw transcripts in `references/transcripts/`).
+
 ## Remote Publishing Workflow
 
 Treat the podcast files in `data/` as the source of truth. Remote hosting actions happen only after the local episode record is mature enough to publish.
@@ -73,7 +121,7 @@ Before any upload, treat embedded MP3 metadata as part of the local publish arti
 
 1. Start the episode locally with the intake workflow.
 2. Clean and enrich the transcript.
-3. Finalize local metadata such as title, optional local summary for ID3 tagging, show notes in the episode Markdown body, transcript path, speaker references, directory entries, and `## Episode Chapters` labels when available.
+3. Finalize local metadata such as title, show notes in the episode Markdown body, transcript path, speaker references, and `## Episode Chapters` labels when available. Directory entries are created as separate files and linked in transcripts; directory membership is derived at index time.
 4. Run `node skills/skill-tree-production/scripts/build-reference-indexes.mjs` to refresh committed episode, speaker, transcript, and directory indexes once the local metadata is stable.
 5. When the user provides an MP3 path outside the repo, perform the same local audio preparation regardless of whether the next remote step is create or replace.
 6. Inspect that local file for existing tags and chapters before upload.
@@ -158,3 +206,13 @@ If the user asks to publish an episode that does not yet have `publishing.episod
 - Keep summaries scannable and tags accurate.
 - Link speakers, directory entries, and episodes consistently so retrieval remains reliable.
 - Review topics in a dedicated periodic pass rather than proposing them during episode-level workflows.
+
+### Episode Title Changes
+
+When changing an episode title, update all three locations:
+
+1. **Episode frontmatter** — the `title:` field in `data/episodes/*.md`
+2. **Episode document heading** — the `# Title` heading in the episode Markdown body
+3. **Transcript title** — the `# Title` heading or `title:` frontmatter in `data/transcripts/*.md`
+
+This keeps the episode and transcript titles in sync for indexing and display.

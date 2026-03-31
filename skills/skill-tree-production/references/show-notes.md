@@ -88,6 +88,8 @@ Preferred section order:
 ## Writing Rules
 
 - Open with 1 to 2 short paragraphs that name the topic, the people in the conversation, and the practical focus of the episode.
+- Use only `##` headings in the episode body. Do not use `#`, and do not use `###` or deeper headings.
+- If a section needs sub-structure, use short lead-in sentences, bold labels, or paragraph transitions instead of nested headings.
 - Use wording from the transcript when it is memorable, precise, or unusually clear.
 - Prefer declarative headings over rhetorical ones.
 - Summarize concrete ideas, disagreements, and workflows, not just episode chronology.
@@ -124,17 +126,17 @@ Preferred section order:
 
 ## Discussion Highlights
 
-### [Plain-language topic or theme]
+## [Plain-language topic or theme]
 
 [1 short paragraph summarizing the discussion. Prefer concrete nouns, named tools, and distinctive phrasing from the transcript.]
 
 > [Optional short quote from transcript.]
 
-### [Plain-language topic or theme]
+## [Plain-language topic or theme]
 
 [1 short paragraph summarizing another major thread.]
 
-### [Plain-language topic or theme]
+## [Plain-language topic or theme]
 
 [1 short paragraph summarizing a third major thread.]
 

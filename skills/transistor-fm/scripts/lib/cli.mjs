@@ -159,6 +159,7 @@ async function buildActionContext(options = {}) {
 
   return {
     config,
+    io: options.io || process,
     httpClient: options.httpClient || createHttpClientImpl(config),
     formatters: options.formatters || {
       renderCollection,
@@ -238,7 +239,7 @@ async function runSchemaBackedCli(argv, io = process, state, options = {}) {
     };
 
     try {
-      const actionContext = await buildActionContext(options);
+      const actionContext = await buildActionContext({ ...options, io });
       const output = await action.run(actionInvocation, {
         ...actionContext,
         registry: context.registry,

@@ -1,5 +1,7 @@
-import fs from "node:fs/promises";
+import fs from "node:fs";
+import fsPromises from "node:fs/promises";
 import path from "node:path";
+import { Transform } from "node:stream";
 
 const EPISODE_ID_FLAG = {
   name: "--id <episode-id>",
@@ -544,9 +546,123 @@ function renderEpisodesAnalytics(resource = {}) {
   return `${lines.join("\n")}\n`;
 }
 
-async function readUploadFile(filePath) {
+function formatByteCount(bytes) {
+  if (!Number.isFinite(bytes) || bytes < 0) {
+    return "0 B";
+  }
+
+  const units = ["B", "KB", "MB", "GB", "TB"];
+  let value = bytes;
+  let unitIndex = 0;
+  while (value >= 1024 && unitIndex < units.length - 1) {
+    value /= 1024;
+    unitIndex += 1;
+  }
+
+  const digits = value >= 100 || unitIndex === 0 ? 0 : value >= 10 ? 1 : 2;
+  return `${value.toFixed(digits)} ${units[unitIndex]}`;
+}
+
+function createUploadProgressReporter({
+  label = "Uploading audio",
+  totalBytes = 0,
+  stream = process.stderr,
+} = {}) {
+  const total = Math.max(Number(totalBytes) || 0, 0);
+  const isTTY = Boolean(stream?.isTTY);
+  const barWidth = 24;
+  let lastRenderedBytes = -1;
+  let lastRenderedAt = 0;
+  let lastLoggedPercent = -10;
+  let hasWrittenTTYLine = false;
+
+  function render(transferredBytes, { force = false } = {}) {
+    const safeTransferred = Math.max(0, Math.min(transferredBytes, total || transferredBytes));
+    const now = Date.now();
+    if (!force && safeTransferred === lastRenderedBytes) {
+      return;
+    }
+    if (!force && now - lastRenderedAt < 100) {
+      return;
+    }
+
+    const percent = total > 0 ? Math.round((safeTransferred / total) * 100) : 0;
+    const filled = total > 0 ? Math.round((safeTransferred / total) * barWidth) : 0;
+    const bar = `${"=".repeat(filled)}${"-".repeat(Math.max(0, barWidth - filled))}`;
+    const progressText = `${label} [${bar}] ${String(percent).padStart(3, " ")}% (${formatByteCount(
+      safeTransferred
+    )}/${formatByteCount(total)})`;
+
+    if (isTTY) {
+      stream.write(`\r\x1b[2K${progressText}`);
+      hasWrittenTTYLine = true;
+      if (force && safeTransferred >= total) {
+        stream.write("\n");
+      }
+    } else if (force || percent >= lastLoggedPercent + 10 || safeTransferred >= total) {
+      stream.write(`${progressText}\n`);
+      lastLoggedPercent = percent;
+    }
+
+    lastRenderedBytes = safeTransferred;
+    lastRenderedAt = now;
+  }
+
+  return {
+    start() {
+      render(0, { force: true });
+    },
+    update(transferredBytes) {
+      render(transferredBytes);
+    },
+    complete() {
+      if (isTTY && lastRenderedBytes >= total && hasWrittenTTYLine) {
+        stream.write("\n");
+        return;
+      }
+      render(total, { force: true });
+    },
+  };
+}
+
+async function getUploadFileSize(filePath) {
   try {
-    return await fs.readFile(filePath);
+    const stats = await fsPromises.stat(filePath);
+    if (!stats.isFile()) {
+      throw new Error("Path is not a file.");
+    }
+
+    return stats.size;
+  } catch (error) {
+    throw new Error(`Unable to read \`${filePath}\`: ${error?.message || "Unknown error."}`);
+  }
+}
+
+async function openUploadFile(filePath, { progressReporter } = {}) {
+  try {
+    const stats = await fsPromises.stat(filePath);
+    if (!stats.isFile()) {
+      throw new Error("Path is not a file.");
+    }
+
+    let transferredBytes = 0;
+    const source = fs.createReadStream(filePath);
+    const meter = new Transform({
+      transform(chunk, encoding, callback) {
+        transferredBytes += chunk.length;
+        progressReporter?.update(transferredBytes);
+        callback(null, chunk);
+      },
+    });
+
+    source.on("error", (error) => {
+      meter.destroy(error);
+    });
+
+    return {
+      size: stats.size,
+      body: source.pipe(meter),
+    };
   } catch (error) {
     throw new Error(`Unable to read \`${filePath}\`: ${error?.message || "Unknown error."}`);
   }
@@ -554,7 +670,7 @@ async function readUploadFile(filePath) {
 
 async function readTextFile(filePath, label = "file") {
   try {
-    return await fs.readFile(filePath, "utf8");
+    return await fsPromises.readFile(filePath, "utf8");
   } catch (error) {
     throw new Error(`Unable to read ${label} \`${filePath}\`: ${error?.message || "Unknown error."}`);
   }
@@ -844,7 +960,7 @@ export function registerEpisodesNoun(registry) {
         summary: "Authorize a URL for uploading a local audio file to be used when creating or updating an episode.",
         flags: UPLOAD_FLAGS,
         notes: [
-          "The CLI derives the API `filename` from the local path, uploads the file with the returned `content_type`, and prints the resulting `audio_url`.",
+          "The CLI derives the API `filename` from the local path, streams the upload with a filling progress bar, and prints the resulting `audio_url`.",
         ],
         examples: [
           "node scripts/transistor-fm.mjs episodes upload --file ./Episode1.mp3",
@@ -856,7 +972,15 @@ export function registerEpisodesNoun(registry) {
             throw new Error("`--file <path>` must point to a local file.");
           }
 
-          const fileBody = await readUploadFile(filePath);
+          const uploadFileSize = await getUploadFileSize(filePath);
+          const progressReporter = createUploadProgressReporter({
+            label: `Uploading ${filename}`,
+            totalBytes: uploadFileSize,
+            stream: context.io?.stderr,
+          });
+          const uploadFileWithProgress = await openUploadFile(filePath, {
+            progressReporter,
+          });
           const payload = await context.httpClient.request({
             method: "GET",
             path: "episodes/authorize_upload",
@@ -872,11 +996,21 @@ export function registerEpisodesNoun(registry) {
             throw new Error("Authorize-upload did not return `upload_url`, `content_type`, and `audio_url`.");
           }
 
-          await context.httpClient.upload({
-            url: uploadUrl,
-            contentType,
-            body: fileBody,
-          });
+          progressReporter.start();
+          try {
+            await context.httpClient.upload({
+              url: uploadUrl,
+              contentType,
+              contentLength: uploadFileWithProgress.size,
+              body: uploadFileWithProgress.body,
+            });
+          } catch (error) {
+            if (context.io?.stderr?.isTTY) {
+              context.io.stderr.write("\n");
+            }
+            throw error;
+          }
+          progressReporter.complete();
 
           return buildUploadResult(audioUrl, context.formatters.renderResource);
         },

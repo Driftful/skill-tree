@@ -20,6 +20,26 @@ function buildUrl(baseUrl, pathname, query = {}) {
   return url;
 }
 
+function isStreamingBody(body) {
+  if (!body) {
+    return false;
+  }
+
+  if (typeof body === "string") {
+    return false;
+  }
+
+  if (body instanceof ArrayBuffer || ArrayBuffer.isView(body)) {
+    return false;
+  }
+
+  return (
+    typeof body.pipe === "function" ||
+    typeof body.getReader === "function" ||
+    typeof body[Symbol.asyncIterator] === "function"
+  );
+}
+
 export function createHttpClient({
   apiKey,
   apiBaseUrl,
@@ -77,7 +97,13 @@ export function createHttpClient({
     return payload;
   }
 
-  async function upload({ url, contentType, body, headers = {} } = {}) {
+  async function upload({
+    url,
+    contentType,
+    contentLength,
+    body,
+    headers = {},
+  } = {}) {
     if (!url) {
       throw new Error("Audio upload requires a destination URL.");
     }
@@ -88,14 +114,24 @@ export function createHttpClient({
       throw new Error("Audio upload requires a request body.");
     }
 
-    const response = await fetchImpl(url, {
+    const requestHeaders = {
+      "Content-Type": contentType,
+      ...headers,
+    };
+    if (contentLength !== undefined && contentLength !== null) {
+      requestHeaders["Content-Length"] = String(contentLength);
+    }
+
+    const requestOptions = {
       method: "PUT",
-      headers: {
-        "Content-Type": contentType,
-        ...headers,
-      },
+      headers: requestHeaders,
       body,
-    });
+    };
+    if (isStreamingBody(body)) {
+      requestOptions.duplex = "half";
+    }
+
+    const response = await fetchImpl(url, requestOptions);
 
     if (!response.ok) {
       const text = (await response.text()).trim();

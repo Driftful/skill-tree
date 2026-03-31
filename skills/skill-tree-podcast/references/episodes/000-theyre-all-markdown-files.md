@@ -39,13 +39,11 @@ The format is intentionally loose. There is no formal intro or outro, and the ep
 - `23:31` Guests, Segments, and the Show Format
 - `25:35` skilltree.fm, Podcast Metadata, and Skill Evals
 
-## Discussion Highlights
-
-### Starting with a loose trailer episode
+## Starting with a Loose Trailer Episode
 
 Neil and Nick use this first episode to start publishing before every segment, workflow, and production habit is locked in. That makes the episode feel more like an initial conversation than a polished pilot, but it also gives a direct introduction to the show's focus: practical AI workflows, developer tooling, and how these systems hold up in real use.
 
-### Why skills matter even when they are "just Markdown files"
+## Why Skills Matter Even When They Are "Just Markdown Files"
 
 One of the recurring ideas in the episode is that the format is simple but the structure is useful. When instructions, references, and workflows are organized clearly, they become reliable inputs for both agents and humans. The conversation treats skills less like magic and more like reusable working instructions.
 
@@ -53,13 +51,13 @@ One of the recurring ideas in the episode is that the format is simple but the s
 
 That line captures a lot of the episode's framing. A big part of the discussion is about the gap between a plain file format and the workflows it can support when the structure is good enough.
 
-### Ideation as a bridge from rough ideas to implementation
+## Ideation as a Bridge from Rough Ideas to Implementation
 
 Nick's ideation skill is one of the clearest examples in the episode of how a workflow can improve AI-assisted development. Instead of jumping straight to an answer, the skill asks clarifying questions, checks its understanding, builds a contract, and only then expands into specs or PRDs. That creates a better handoff between rough human intent and concrete implementation work.
 
 Neil and Nick frame this as an interface problem as much as a prompting problem. Better systems come from better scaffolding: rubrics, progressive disclosure, execution phases, review loops, and artifacts that other tools can consume.
 
-### Tools and systems shaping the conversation
+## Tools and Systems Shaping the Conversation
 
 The episode moves across a wide range of tools, from day-to-day coding environments like Cursor to research and execution layers like DeepWiki, Context7, Mastra Code, Agent Zero, and pi.dev. NebraskaJS enters the story as a proving ground for showing workflows in public. Wispr Flow connects to the dictation-heavy, brain-dump style behind ideation. DSPy and Tessl push the conversation toward evaluation and what it means to know a generated workflow is actually good.
 
@@ -73,12 +71,10 @@ The episode moves across a wide range of tools, from day-to-day coding environme
 - Context7, Mastra Code, Agent Zero, and pi.dev - examples of agent tooling and execution harnesses that shape the discussion
 - DSPy and Tessl - part of the thread on evaluating skills, workflows, and generated systems
 
-## About The Hosts
-
-### Neil Roberts
+## Neil Roberts
 
 Neil Roberts is a software engineer at SitePen active in the JavaScript community and podcasting. On The Skill Tree, he brings a strong interest in AI workflows, documentation-driven systems, and practical ways to make LLMs more useful.
 
-### Nick Nisi
+## Nick Nisi
 
 Nick Nisi is a DX engineer at WorkOS focused on TypeScript, AI tooling, and podcasting. He brings a tinkerer mindset to the show, with a particular interest in skills, agent workflows, ideation systems, and developer tooling.

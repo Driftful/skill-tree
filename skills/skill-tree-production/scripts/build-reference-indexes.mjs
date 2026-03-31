@@ -26,6 +26,7 @@ const parserScript = path.join(hostSkillRoot, "scripts", "parse-markdown-json.py
 const generationRules = {
   folderIndexName: "index.md",
   entityIndexSuffix: ".index.md",
+  excludedCollections: ["in-progress", "review", "scratch"],
 };
 
 const mode = cliArguments.mode;
@@ -465,6 +466,7 @@ async function discoverSourceCollections() {
   for (const entry of entries) {
     if (!entry.isDirectory()) continue;
     const collection = entry.name;
+    if (generationRules.excludedCollections.includes(collection)) continue;
     const collectionDir = path.join(referencesRoot, collection);
     const indexFilePath = path.join(collectionDir, generationRules.folderIndexName);
     let indexFrontmatter = {};

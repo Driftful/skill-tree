@@ -7,3 +7,4 @@ This page shows where [Neil Roberts](./neil-roberts.md) appears.
 ## Appears In
 
 - [000: They're All Markdown Files](../episodes/000-theyre-all-markdown-files.md) - host
+- [001: Cleaning the Fridge: The Hero's Journey](../episodes/001-cleaning-the-fridge-the-heros-journey.md) - host

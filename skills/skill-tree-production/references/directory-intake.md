@@ -49,7 +49,11 @@ Before creating one, the workflow should have:
 - enough supporting context to explain why this is the correct match
 - alias notes when transcript phrasing differs from the canonical name
 
-If the evidence is weak or ambiguous, keep the item in the review document as unresolved instead of guessing.
+**GitHub research**: For GitHub-hosted projects, use the `gh` CLI tool (`gh repo view`, `gh api repos/<owner/repo>`) to get accurate metadata rather than web scraping.
+
+**Link ordering**: When a project has both a GitHub repo and a cleaner informational website, list the website first in `links:`. The website provides a better landing experience for listeners. Include GitHub as a secondary link when useful.
+
+If the evidence is weak or ambiguous, keep the item in the review document as unresolved instead of guessing. When in doubt, ask the user — they often know the canonical name or URL immediately.
 
 ## Confidence Notes
 
@@ -69,11 +73,32 @@ Suggested fields:
 - `name`: canonical display name
 - `kind`: one of `tool`, `product`, `framework`, `library`, `company`, `organization`, `protocol`, `format`, `file`, `concept`, or another short category that fits the item
 - `summary`: concise explanation of what it is and why it matters in the podcast context
-- `links`: canonical links worth reusing
+- `links`: canonical links worth reusing (list the primary/informational website first, GitHub second)
 - `aliases`: optional alternate spellings or names
 - `evidence`: optional short notes about how the item was identified when disambiguation matters
+- `usage`: optional grammar and formatting rules for how to reference this item
 
 Keep the body optional. Use it only for substantive notes that do not fit cleanly into front matter.
+
+## Usage Rules
+
+The `usage` field captures grammar, formatting, and stylistic rules for referencing the item consistently. Include usage rules when:
+
+- The item has non-obvious capitalization (e.g., "macOS", "iOS", "TypeScript")
+- The item should appear in backticks in certain contexts (e.g., CLI commands, file names)
+- The item is commonly confused with something else
+- The item has a handle form vs. a name form
+
+Example usage field values:
+
+```yaml
+usage: "Always capitalize as 'TypeScript', never 'Typescript' or 'typescript'"
+usage: "Use backticks when referring to the CLI command (`case run`), plain text for the product (Case)"
+usage: "Distinguish from Neovim; Vim refers specifically to the original editor"
+usage: "Use `@nicknisi` for the handle, 'Nick Nisi' for the person"
+```
+
+When a directory entry has usage rules, the enrichment workflow should apply those rules when linking or formatting transcript mentions.
 
 ## Summary Rule
 
