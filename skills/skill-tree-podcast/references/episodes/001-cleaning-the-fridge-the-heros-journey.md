@@ -10,7 +10,7 @@ guests:
 transcript: references/transcripts/001-cleaning-the-fridge-the-heros-journey.md
 topics: []
 publishing:
-  audio_url: https://transistorupload.s3.amazonaws.com/9abb99199b90acd7ef252cf30a5de167.mp3
+  audio_url: https://transistorupload.s3.amazonaws.com/d80c384092950585d4b077bb1667c941.mp3
   episode_id: 3137562
   status: published
   published_at: 2026-03-31T18:13:03.243Z

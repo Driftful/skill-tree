@@ -5,7 +5,7 @@ description: Helps users explore The Skill Tree podcast, a weekly show about bui
 
 # The Skill Tree Podcast
 
-![Banner artwork for The Skill Tree Podcast](./assets/banner.png)
+![Banner artwork for The Skill Tree Podcast](./assets/banner.jpg)
 
 A weekly show about building effective agentic experiences.
 
