@@ -4,8 +4,10 @@ Processing workflow and detailed instructions for cleaning raw transcript conten
 
 ## Definitions
 
-- **Observations file**: `in-progress/[episode]-observations.md` — append-only log of referenceable items, title candidates, and cleanup decisions discovered during cleanup.
-- **Cleaned transcript**: `in-progress/[episode]-cleaned.md` — the append-only polished transcript assembled window by window.
+- **Observations file**: `{transcript}-observations.md` — append-only log of notable mentions, title candidates, explicit content flags, and cleanup decisions discovered during cleanup.
+- **Cleaned transcript**: `{transcript}-cleaned.md` — the append-only polished transcript assembled window by window.
+
+Output files are named by adding a suffix to the input transcript filename before the extension. For example, if the input is `episode.txt`, outputs are `episode-observations.md` and `episode-cleaned.md`.
 
 ## Core Philosophy
 
@@ -55,15 +57,11 @@ Defer to project-specific instructions or skills for human-in-the-loop interacti
 
 ## Workflow
 
-### Step 0: Load First-Pass Discovery (Metadata File)
+### Step 0: Load Metadata (If Provided)
 
-**Before processing any window, check for and load the first-pass discovery metadata file.**
+**Before processing any window, check if a metadata file was provided.**
 
-The producer creates this file during the First-Pass Discovery workflow (see host-workflows.md). It should exist at `in-progress/[episode]-metadata.md` before cleanup begins.
-
-**Expected input:**
-- Raw transcript path (e.g., `references/transcripts/001.txt`)
-- Metadata file path (e.g., `references/in-progress/001-metadata.md`)
+The caller may provide a metadata file containing pre-analyzed information about the transcript (speakers, technical terms, chapter markers). If provided, use it. If not, generate the analysis yourself.
 
 **If the metadata file exists:**
 
@@ -76,9 +74,9 @@ The producer creates this file during the First-Pass Discovery workflow (see hos
 3. If there are unresolved ambiguities (terms flagged with < 99% confidence), ask the user to verify them now before proceeding.
 4. Proceed to Step 1.
 
-**If the metadata file does NOT exist:**
+**If no metadata file was provided:**
 
-Fall back to running the pre-process analysis yourself. Spawn a subagent to perform whole-file analysis.
+Run the pre-process analysis yourself. Spawn a subagent to perform whole-file analysis.
 
 **Spawn a Task subagent with these instructions:**
 
@@ -124,14 +122,14 @@ Provide the subagent with:
      - Confidence level (must be 99%+ to proceed without human verification)
    - **If confidence is below 99%, flag the term for human clarification**
 
-4. **Initial referenceable item scan** — Note things that may be useful for downstream enrichment:
+4. **Initial notable mentions scan** — Note things that may be useful for downstream processing:
    - Tools, products, frameworks, libraries, protocols mentioned
    - Skills or workflows mentioned by name
    - Companies, organizations, or people (beyond the speakers)
    - Specific articles, blog posts, videos, talks, or episodes referenced
    - Memes or cultural references
    
-   Do not resolve or research these deeply yet. Just note them in chronological order and whether they look like directory candidates (likely to recur) or one-off references.
+   Do not resolve or research these deeply yet. Just note them in chronological order with a brief classification (recurring vs one-off mention).
 
 5. **Flag ambiguities** — Note any unclear speaker attributions, unfinished thoughts at file boundaries, or content that will need human clarification.
 
@@ -139,7 +137,7 @@ Provide the subagent with:
 
 7. **Note major topic shifts** — Identify where conversation shifts topics significantly. Record the timestamp for each shift. These become chapter markers in the final output.
 
-After the subagent returns, **write ALL findings to the metadata file at `in-progress/[episode]-metadata.md`** before proceeding. This persists the analysis so you don't lose it.
+After the subagent returns, **write findings to `{transcript}-metadata.md`** before proceeding. This persists the analysis so you don't lose it.
 
 **Write to metadata file:**
 - Total word count and estimated windows (total words ÷ 2000)
@@ -150,26 +148,20 @@ After the subagent returns, **write ALL findings to the metadata file at `in-pro
 - ALL identified technical terms (with verification status and canonical spelling)
 - Flagged ambiguities
 
-**Do NOT write referenceable items to the metadata file.** Those go in the separate observations file during cleanup (see Step 1).
+**Do NOT write notable mentions to the metadata file.** Those go in the observations file during cleanup (see Step 1).
 
 **Then verify flagged jargon with the user** — use human-in-the-loop to confirm any terms the subagent couldn't verify with 99% confidence. Update the metadata file with verified spellings.
 
 ### Step 1: Initialize Observations File
 
-Create the observations file using your normal Write tool. This file is separate from the metadata file.
-
-**Metadata file (read-only):** `in-progress/[episode]-metadata.md`
-- Created by the producer during First-Pass Discovery
-- Contains overview, chapter markers, technical terms
-- **Do NOT write to this file** — only read it for reference during cleanup
-
-**Observations file (append-only):** `in-progress/[episode]-observations.md`
-- Your working log for referenceable items and title candidates
-- Create this file at the start of cleanup
+Create the observations file at `{transcript}-observations.md` using your normal Write tool.
 
 **Observations file structure:**
 
 ```markdown
+## Explicit Content Flag
+{note if explicit content detected: profanity, sexual content, violence, drug references}
+
 ## Cleanup Decisions
 {non-obvious decisions, e.g., "treating 'auxlint' as 'Oxlint'"}
 
@@ -177,19 +169,27 @@ Create the observations file using your normal Write tool. This file is separate
 {append-only log of referenceable items and title candidates}
 ```
 
-**The Observations Log is strictly append-only.** As you process each window, append new entries for referenceable items and title candidates immediately after encountering them, before moving to the next window. Each entry should include:
+**The Explicit Content Flag section tracks whether the transcript contains explicit content.** As you process each window, note any explicit content:
+- Profanity or strong language
+- Sexual content or innuendo
+- Graphic violence descriptions
+- Drug or substance references beyond casual mention
+
+If you encounter explicit content, append a brief note to this section with the type of content and approximate location. At cleanup completion, summarize whether the transcript contains explicit content.
+
+**The Observations Log is strictly append-only.** As you process each window, append new entries for notable mentions and title candidates immediately after encountering them, before moving to the next window. Each entry should include:
 - What was mentioned
-- Classification: `[directory]`, `[one-off]`, or `[title]`
+- Classification: `[recurring]` (likely to appear again), `[one-off]` (single mention), or `[title]` (potential episode title)
 - Any notes
 
 **Append incrementally, not in batches.** After cleaning each window, append observations from that window to the observations file before starting the next window. Do not accumulate observations across multiple windows and then write them all at once.
 
 Example entries:
 ```
-- [directory] "Cursor" — AI code editor, mentioned multiple times
+- [recurring] "Cursor" — AI code editor, mentioned multiple times
 - [one-off] "that Simon Willison post about..." — specific article, needs URL
-- [directory] "MCP" — protocol, recurring reference
-- [title] "They're All Markdown Files" — Nick's reaction to seeing the skill structure
+- [recurring] "MCP" — protocol, recurring reference
+- [title] "They're All Markdown Files" — memorable quote
 - [title] "The Vibes Are the Spec" — on trusting intuition during ideation
 ```
 
@@ -220,8 +220,8 @@ See the Cleaning Rules section below for detailed instructions.
 
 After cleaning a window, follow this procedure:
 
-1. Append any new referenceable items to the observations file's Observations Log (in order, with classification)
-2. Append the cleaned chunk (content up to `TARGET REACHED`) to the cleaned transcript using `scripts/append.py`
+1. Append any new notable mentions to the observations file's Observations Log (in order, with classification)
+2. Append the cleaned chunk (content up to `TARGET REACHED`) to `{transcript}-cleaned.md` using `scripts/append.py`
 3. Note `TARGET REACHED after_line`—your next window starts at `after_line + 1`
 
 **CRITICAL: Use `TARGET REACHED after_line`, NOT `SLICE END last_line`.**
@@ -255,14 +255,14 @@ After processing the entire transcript, generate podcast-style chapters.
 - **Major topic shifts only** — each chapter marks a real gear-change in conversation
 - **NOT a detailed outline** — avoid chapter-per-tangent; consolidate related discussion
 
-The chapter markers from the metadata file (created during First-Pass Discovery) are your starting point. Do a **post-conversion chapter review pass** before finalizing them in the cleaned transcript.
+If the metadata file contains chapter markers, use them as your starting point. Do a **post-conversion chapter review pass** before finalizing them in the cleaned transcript.
 
 #### Required Post-Conversion Chapter Review Pass
 
-Before you lock the chapters into the cleaned transcript, compare the proposed chapter markers against all 3 artifacts:
+Before you lock the chapters into the cleaned transcript, compare the proposed chapter markers against all available artifacts:
 
 1. **Raw transcript segments** — verify that each timestamp lands on a real conversational pivot in the original segmented transcript, not just in your memory of the cleanup
-2. **Metadata file** — compare the chapter markers from the producer's first-pass discovery against your observations during cleanup
+2. **Metadata file** — if it contains chapter markers, compare them against your observations during cleanup
 3. **Cleaned transcript** — make sure each title still accurately describes the cleaned discussion that follows the timestamp
 
 During this pass, explicitly check:
@@ -276,6 +276,16 @@ During this pass, explicitly check:
 If the chapter markers in the metadata file and cleaned transcript disagree, treat the cleaned transcript chapter list as **not yet finalized**. Reconcile the differences by checking the raw transcript segments and then update the cleaned transcript with the corrected chapter list.
 
 Only after this comparison pass should you prepend the final chapters to the cleaned transcript. Do NOT add timestamps inline throughout the text.
+
+### Step 7: Report Completion
+
+After cleanup is complete, report to the user:
+
+1. Cleanup status: the cleaned transcript is ready at `{transcript}-cleaned.md`
+2. Explicit content summary: whether any explicit content was flagged during cleanup
+3. Notable mentions summary: brief overview of recurring items and potential titles logged in observations file
+
+**Scope boundary:** This skill only writes to the cleaned transcript and observations file. It does not move files, update external records, or modify any files outside `in-progress/`.
 
 ---
 
@@ -378,21 +388,21 @@ Common issues to verify:
 
 ---
 
-## Referenceable Item Tracking
+## Notable Mention Tracking
 
-While cleaning, notice and log items that may be useful for downstream enrichment. This happens incrementally as you process each window, not as a batch at the end.
+While cleaning, notice and log items that may be useful for downstream processing. This happens incrementally as you process each window, not as a batch at the end.
 
 ### What to Notice
 
-**Directory candidates** — things likely to recur across episodes:
+**Recurring mentions** — things likely to appear multiple times:
 - Tools and products
 - Frameworks and libraries
 - Protocols and file conventions
 - Companies and organizations
 - Skills mentioned by name
-- Coined podcast terms or recurring show segments
+- Coined terms or recurring segments
 
-**One-off references** — things worth linking but unlikely to recur:
+**One-off mentions** — things mentioned only once:
 - Specific articles or blog posts
 - Specific videos, talks, or conference presentations
 - Specific episodes of other shows
@@ -409,45 +419,49 @@ Title candidates are logged only during per-window processing, not in the subage
 
 ### How to Log
 
-Append observations to the **observations file** (`in-progress/[episode]-observations.md`) as you encounter them, in chronological order. Each entry should include:
+Append observations to the **observations file** (`{transcript}-observations.md`) as you encounter them, in chronological order. Each entry should include:
 - What was mentioned (verbatim or the canonical name if you have verified it)
-- Whether it looks like a directory candidate or one-off reference
+- Whether it looks like a recurring or one-off mention
 - Any notes about ambiguity or confidence
 
 **Log immediately, not later.** After cleaning each window, append that window's observations before proceeding to the next slice. Do not defer logging until several windows have been processed.
 
-Chronological order is sufficient. The cleaned transcript won't have timestamps or line numbers, so enrichment will find items by scanning in order.
+Chronological order is sufficient. The cleaned transcript won't have timestamps or line numbers, so downstream processing can find items by scanning in order.
 
-Do not research or resolve these during cleanup. The observation log feeds the separate enrichment workflow.
+Do not research or resolve these during cleanup. The observation log is an artifact for downstream use.
 
 ---
 
 ## Quick Reference Checklist
 
 **Before starting (once):**
-- [ ] Load metadata file from `in-progress/[episode]-metadata.md`
-- [ ] If metadata file doesn't exist, run the fallback subagent analysis
+- [ ] Load metadata file if provided by caller
+- [ ] If no metadata file, run the subagent analysis and write to `{transcript}-metadata.md`
 - [ ] Ask user to verify any flagged jargon (< 99% confidence)
-- [ ] Create observations file at `in-progress/[episode]-observations.md`
-- [ ] Cleaned file is created automatically on first append at `in-progress/[episode]-cleaned.md`
+- [ ] Create observations file at `{transcript}-observations.md` (include empty Explicit Content Flag section)
+- [ ] Cleaned file is created automatically on first append at `{transcript}-cleaned.md`
 
 **For each window:**
 - [ ] Set `--start-line` to 1 (first window) or `TARGET REACHED after_line + 1` (subsequent windows)
 - [ ] Read one slice with `scripts/slice.py`, targeting 2000 words (script adds look-ahead past target)
 - [ ] Check metadata file for prior technical term decisions (read-only)
 - [ ] Ask user about any new context gaps
-- [ ] Notice referenceable items (tools, articles, skills, etc.) and possible episode titles
+- [ ] Notice notable mentions (tools, articles, skills, etc.) and possible episode titles
+- [ ] Flag any explicit content (profanity, sexual content, violence, drug references) in observations file
 - [ ] Remove: um, uh, like, you know, yeah, mm-hmm, etc.
 - [ ] Fix broken sentences (missing periods, split lines)
 - [ ] Consolidate consecutive same-speaker segments
 - [ ] Numbers as digits (23 not twenty-three)
 - [ ] Verify suspicious technical terms; log new cleanup decisions to observations file
-- [ ] Append new observations to observations file (referenceable items with classification, title candidates)
-- [ ] Append cleaned content (up to `TARGET REACHED`) to `in-progress/[episode]-cleaned.md`
+- [ ] Append new observations to observations file (notable mentions with classification, title candidates)
+- [ ] Append cleaned content (up to `TARGET REACHED`) to `{transcript}-cleaned.md`
 - [ ] Note `TARGET REACHED after_line` — next window starts at `after_line + 1`
 
 **After transcript conversion is complete:**
-- [ ] Review chapter markers from metadata file against the raw transcript segments
+- [ ] Review chapter markers from metadata file (if present) against the raw transcript segments
 - [ ] Compare metadata chapter markers vs cleaned transcript chapter list
 - [ ] Adjust timestamps, titles, and density before finalizing chapters
 - [ ] Prepend the finalized chapter list to the cleaned transcript
+- [ ] Report explicit content summary (flagged or not)
+- [ ] Report notable mentions summary
+- [ ] Report that cleanup is complete

@@ -2,6 +2,7 @@
 number: 1
 title: "Cleaning the Fridge: The Hero's Journey"
 status: published
+explicit: true
 hosts:
   - neil-roberts
   - nick-nisi

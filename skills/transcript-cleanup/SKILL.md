@@ -29,11 +29,11 @@ Use `scripts/slice.py` for ALL transcript reads. No exceptions.
 
 ### What You CAN Freely Read and Write
 
-**The metadata file is read-only.** It's small (a few dozen lines) and was created by the producer during First-Pass Discovery. Use your normal Read tool to consult it for technical terms, chapter markers, and overview information. **Do NOT write to this file.**
+**The metadata file (if provided) is read-only.** It's small and contains pre-analyzed transcript information. Use your normal Read tool to consult it for technical terms, chapter markers, and overview information.
 
-**The observations file is append-only.** Create it at `in-progress/[episode]-observations.md` and append cleanup decisions, referenceable items, and title candidates as you go.
+**The observations file is append-only.** Named `{transcript}-observations.md` (e.g., `episode.txt` → `episode-observations.md`). Append cleanup decisions, notable mentions, and title candidates as you go.
 
-**The cleaned output file is off-limits.** Never read it, never write to it directly—only append (the file is created automatically on first append).
+**The cleaned output file is off-limits.** Named `{transcript}-cleaned.md` (e.g., `episode.txt` → `episode-cleaned.md`). Never read it, never write to it directly—only append.
 
 ### Why This Matters
 
@@ -49,7 +49,6 @@ A 10,000-word transcript consumes attention you need for accurate cleanup. Readi
 - **Window**: The target slice currently being processed.
 - **Look-ahead**: 5 additional segments read only for context (never output).
 - **Raw transcript segments**: The original transcript content as emitted by `slice.py`, still in speaker/timestamp segment form.
-- **Metadata file (input)**: `in-progress/[episode]-metadata.md` — first-pass discovery from producer containing overview, chapter markers, technical terms. **Read-only during cleanup.** Do not write to this file.
 
 ## slice.py
 

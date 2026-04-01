@@ -28,18 +28,79 @@ Turn a cleaned transcript into better source material for the podcast knowledge 
    - Check official project websites, GitHub repos, or npm/PyPI packages for the canonical display name
    - Normalize casing and spelling to match the public canonical form (e.g., "TypeScript" not "typescript", "Case" not "case")
    - Note any aliases that explain how the name appeared in the transcript
+   - When a matching `data/directory/` entry exists, check its frontmatter for `usage:` or `formatting:` guidance and follow it
 4. Check local `data/directory/` entries and aliases first before doing outside research.
 5. For unresolved or ambiguous candidates, run research subagents to identify the best target URL and enough facts to support a concise summary. For GitHub repos, use the `gh` CLI tool (`gh repo view`, `gh api`) rather than web scraping.
 6. Track two different kinds of confidence:
    - entity-match confidence: how certain the workflow is about the target item
    - placement confidence: how certain the workflow is about the exact transcript locations that should be replaced
-7. Write an intermediate Markdown review document to `references/in-progress/[episode]-links.md` that separates:
+7. Write an intermediate Markdown review document under `review/` that separates:
    - proposed directory matches or new entries
    - proposed inline one-off links
    - uncertain or unresolved cases
 8. Ask the user to edit or confirm that review document.
-9. Only after user approval, create or update any needed `data/directory/` entries and apply transcript replacements.
-10. Leave `topics:` unchanged and defer topic decisions to the standalone topic-curation workflow.
+9. Only after user approval, create or update any needed `data/directory/` entries.
+10. Run the Enhancement Phase to apply links slice-by-slice (see below).
+11. Leave `topics:` unchanged and defer topic decisions to the standalone topic-curation workflow.
+
+## Enhancement Phase
+
+After the user approves the review document, apply links to the transcript using context-safe slicing. This mirrors how `transcript-cleanup` handles long documents.
+
+### Context Hygiene Rules
+
+**Do NOT read the transcript directly.** Use `slice.py` for all reads.
+
+**Do NOT read the enhanced output file.** Only append to it via `append.py`.
+
+**Treat the links review document as your todo list.** Track each link's status as you process slices.
+
+### Scripts
+
+Use the same scripts from the `transcript-cleanup` skill (paths relative to skill-tree repo root):
+
+- `skills/transcript-cleanup/scripts/slice.py` — read slices with word budget and look-ahead
+- `skills/transcript-cleanup/scripts/append.py` — append content without reading the output file
+
+Run `python3 skills/transcript-cleanup/scripts/slice.py -h` or `python3 skills/transcript-cleanup/scripts/append.py -h` for usage details. Do not read the script source files.
+
+### Enhancement Loop
+
+1. **Initialize**: Create the enhanced output file at `[transcript]-enhanced.md` (empty or with front matter if needed).
+
+2. **Read slice**: Use `slice.py` with `--start-line 1` (first slice) or `TARGET REACHED after_line + 1` (subsequent slices), targeting 2000 words.
+
+3. **Check pending links**: For each pending link in the review document, check if its first occurrence falls within this slice (up to `TARGET REACHED`).
+
+4. **Apply links**: For approved links with first occurrences in this slice:
+   - Directory entries: `[mention text](../directory/slug.md)`
+   - One-off references: `[mention text](https://canonical-url.com)`
+   - Mark the link as applied in your working checklist.
+
+5. **Discover new links**: If you encounter a clearly linkable mention not in the original review document, add it to the checklist as newly discovered. Apply it if confidence is high; otherwise flag it for later review.
+
+6. **Append slice**: Use `append.py` to append the enhanced content (up to `TARGET REACHED`) to `[transcript]-enhanced.md`.
+
+7. **Advance**: Set `--start-line` to `TARGET REACHED after_line + 1` and repeat until the transcript is complete.
+
+### Link Status Tracking
+
+Track each link's status in the review document or a working checklist:
+
+- `[ ]` pending — not yet encountered
+- `[x]` applied — linked at first occurrence
+- `[~]` omitted — skipped with reason (e.g., "mentioned only in passing, no clear anchor")
+- `[+]` new — discovered during enhancement, not in original review
+
+At the end of enhancement, every link from the original review should be either applied or omitted with a clear reason. New discoveries should be noted for future reference.
+
+### Output Naming
+
+The enhanced transcript goes to `[transcript]-enhanced.md` in the same directory as the source transcript.
+
+Example: `data/transcripts/001-episode.md` → `data/transcripts/001-episode-enhanced.md`
+
+After verification, the enhanced version replaces the original cleaned transcript.
 
 ## Review-First Rule
 
@@ -154,7 +215,7 @@ For example, the workflow may know which `DeepWiki` page is correct while still 
 
 ## Review Document
 
-Write the intermediate review artifact to `references/in-progress/[episode]-links.md`.
+The intermediate review artifact should live under `review/`.
 For the detailed resolution rules and review-document structure, see [Link Resolution](link-resolution.md).
 
 Minimum sections:
@@ -178,3 +239,12 @@ Minimum fields per item:
 This workflow does not update episode front matter with `directory:` entries. Directory membership is derived at index time from linked references in transcript and episode content.
 
 This workflow should not propose or assign `topics:`. Topic decisions belong to the standalone topic-curation workflow.
+
+## Completion and Next Steps
+
+After transcript enrichment is complete:
+
+1. Update the episode front matter: set `transcript_enriched: true`.
+2. Offer to proceed to the next step: "Transcript enrichment complete. Would you like to finalize episode metadata and prepare for audio tagging, or move on to topic curation?"
+
+This keeps the production workflow moving without requiring the user to remember what comes next.

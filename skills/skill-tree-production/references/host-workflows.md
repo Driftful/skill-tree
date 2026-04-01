@@ -38,7 +38,13 @@ Current working pipeline for transcript creation and cleanup:
 7. Run the parent repo's `transcript-cleanup` skill, passing:
    - The raw transcript path (e.g., `references/transcripts/001.txt`)
    - The metadata file path (e.g., `references/in-progress/001-metadata.md`)
-8. Run the transcript enrichment workflow to identify reusable directory entries and inline one-off references.
+8. After cleanup completes, move the cleaned transcript from `in-progress/[episode]-cleaned.md` to its final location in `data/transcripts/`.
+9. Update episode front matter: set `transcript_cleaned: true`. If cleanup flagged explicit content, set `explicit: true`.
+10. Run the transcript enrichment workflow to identify reusable directory entries and inline one-off references.
+11. Review the generated Markdown review document and edit or approve it before any replacements are applied.
+12. Only after review approval, create or update the needed `data/directory/` files and apply transcript replacements.
+13. After enrichment completes, update episode front matter: set `transcript_enriched: true`.
+14. Leave topics alone during transcript enrichment and revisit them only in the separate topic-curation workflow.
 
 ### First-Pass Discovery
 
@@ -63,12 +69,9 @@ Before running transcript cleanup, perform a first-pass discovery analysis that 
 6. Flag any terms or attributions with < 99% confidence for human clarification.
 7. Write findings to `references/in-progress/[episode]-metadata.md`.
 8. Ask the user to verify flagged terms before proceeding to cleanup.
+9. **Canonical name verification** — before generating the review document, verify that product/tool names use their public canonical form (e.g., "TypeScript" not "typescript", "Case" not "case"). Apply the same verification to chapter titles and metadata.
 
 Pass the metadata file path to transcript cleanup. The cleanup skill will read it for technical terms and chapter markers but will not write to it.
-9. **Canonical name verification** — before generating the review document, verify that product/tool names use their public canonical form (e.g., "TypeScript" not "typescript", "Case" not "case"). Apply the same verification to chapter titles and metadata.
-10. Review the generated Markdown review document and edit or approve it before any replacements are applied.
-11. Only after review approval, create or update the needed `data/directory/` files and apply transcript replacements.
-12. Leave topics alone during transcript enrichment and revisit them only in the separate topic-curation workflow.
 
 Install the cleanup skill with:
 
@@ -117,6 +120,27 @@ Before any upload, treat embedded MP3 metadata as part of the local publish arti
 - Do not create a remote episode automatically after transcript cleanup or enrichment.
 - Create or publish the remote episode only when the user explicitly asks for it.
 
+### Pre-Publish Explicit Content Check
+
+Before publishing an episode, scan the transcript for explicit content that would require the episode to be flagged as `explicit: true`.
+
+**Check for:**
+- Profanity or strong language
+- Sexual content or innuendo
+- Graphic violence descriptions
+- Drug or substance references beyond casual mention
+- Other content that would warrant an explicit tag under podcast directory guidelines
+
+**If explicit content is found:**
+1. Notify the user of the specific content found
+2. Ask if the episode should be flagged as explicit
+3. If confirmed, set `explicit: true` in the episode front matter before publishing
+4. The `explicit` flag will be sent to the remote host during create or update
+
+**If no explicit content is found**, confirm this with the user before publishing: "No explicit content detected in the transcript. Proceeding with `explicit: false`."
+
+This check should happen during the final pre-publish review, before any remote create or publish action.
+
 ### Recommended Sequence
 
 1. Start the episode locally with the intake workflow.
@@ -136,6 +160,8 @@ Before any upload, treat embedded MP3 metadata as part of the local publish arti
 15. If metadata changes after the remote create or audio replacement, inspect the local MP3 again, re-tag it if needed, then run `node scripts/transistor-fm.mjs episodes update --id <episode-id> ...`.
 16. Any time a transcript is sent during `episodes create` or `episodes update`, save the returned `transcript_url` into episode front matter as `publishing.transcript_url` when present.
 17. When the user explicitly asks to publish or schedule the episode, run `node scripts/transistor-fm.mjs episodes publish --id <episode-id> --status ...`.
+18. After a successful publish action, ping the Podcast Index to notify them of the new or updated episode: `curl -s "https://api.podcastindex.org/api/1.0/hub/pubnotify?id=<episode-id>"`.
+19. After any update to a published episode (metadata, audio replacement, transcript), also ping the Podcast Index with the same URL to trigger a refresh.
 
 ### Local Audio Tagging Workflow
 
@@ -193,6 +219,36 @@ Episode-number guidance for remote sync:
 ### Publish Edge Case
 
 If the user asks to publish an episode that does not yet have `publishing.episode_id`, first create the remote episode, persist the returned ID, and then immediately run the publish command.
+
+### Podcast Index Notification
+
+After publishing or updating a published episode, notify the Podcast Index so third-party podcast apps can refresh their caches:
+
+```bash
+curl -s "https://api.podcastindex.org/api/1.0/hub/pubnotify?id=<episode-id>"
+```
+
+**When to ping:**
+- After initial publish (`episodes publish` with `status=published`)
+- After scheduling a publish time (`episodes publish` with future `published_at`)
+- After updating metadata on an already-published episode
+- After replacing audio on an already-published episode
+- After updating the transcript on an already-published episode
+
+The `episode_id` is the Transistor episode ID stored in `publishing.episode_id`. This is not authenticated — it's a public notification endpoint.
+
+## Workflow Continuity
+
+After completing each production step, explicitly offer to proceed to the next logical step in the workflow. This keeps production moving without requiring the user to remember what comes next.
+
+**Examples:**
+- After episode intake: "Episode placeholder created. Would you like to proceed to transcript cleanup, or wait for the transcript file?"
+- After transcript cleanup: "Transcript cleaned. Ready to move on to transcript enrichment?"
+- After transcript enrichment: "Enrichment complete. Would you like to finalize metadata and prepare for audio tagging?"
+- After audio tagging: "MP3 tagged and ready for upload. Should I upload the audio and create the remote episode?"
+- After remote create: "Remote episode created. Ready to publish, or do you want to review the hosted preview first?"
+
+This guidance applies to all production steps. Always offer the next step unless the user has indicated they're pausing or done for now.
 
 ## Maintenance Expectations
 

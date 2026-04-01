@@ -108,6 +108,42 @@ Minimum fields per proposed item:
 - transcript locations
 - rationale or evidence summary
 
+## Link Application Status
+
+The review document doubles as a todo list during the Enhancement Phase. Add a status tracking section to record application outcomes:
+
+```markdown
+## Application Status
+
+### Directory Links
+- [ ] `MCP` — first occurrence around line ~45
+- [x] `DeepWiki` — applied at line ~112
+- [~] `obscure-tool` — omitted: mentioned only in passing, no clear anchor
+
+### Inline Links
+- [x] "Simon Willison post" — applied at line ~89
+- [ ] "that conference talk" — pending clarification
+
+### Newly Discovered
+- [+] `Playwright` — found during enhancement, applied at line ~156
+```
+
+### Status Markers
+
+- `[ ]` **pending** — approved but not yet encountered during enhancement
+- `[x]` **applied** — linked at first occurrence
+- `[~]` **omitted** — skipped with documented reason
+- `[+]` **new** — discovered during enhancement, not in original review
+
+### Completion Requirement
+
+At the end of enhancement, every link from the original review must be either:
+
+- **applied** — marked `[x]` with approximate location
+- **omitted** — marked `[~]` with clear reason (e.g., "no suitable anchor text", "context changed meaning", "mentioned only in passing")
+
+New discoveries should be noted with `[+]` for future reference and potential directory entry creation.
+
 ## Placement Defaults
 
 Unless the user asks otherwise, propose transcript replacements only at the first occurrence of each accepted reusable directory item.

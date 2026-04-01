@@ -63,6 +63,17 @@ For episode placeholders, prefer explicit structured fields such as `transcript:
 
 Avoid aggregate completion flags such as `is_publish_ready`. Prefer direct field values that show what is missing.
 
+## Transcript Processing Status
+
+Track transcript processing stages with explicit boolean fields in episode front matter:
+
+- `transcript_cleaned: false` — set to `true` after the transcript cleanup pass is complete
+- `transcript_enriched: false` — set to `true` after transcript enrichment (directory links and inline references) is complete
+
+These default to `false` during episode intake and are updated as each processing stage completes. They provide clear signals about which transcripts still need work and prevent re-running completed steps.
+
+Unlike `transcript: TBD`, these flags track processing state rather than file existence. A transcript file can exist but still be awaiting cleanup or enrichment.
+
 ## Show Metadata
 
 Store show-wide metadata in `data/show.md`.

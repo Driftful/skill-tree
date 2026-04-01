@@ -47,6 +47,8 @@ The placeholder should capture at least:
 - Hosts: confirmed host list.
 - Guests: confirmed guest list.
 - Transcript: a `transcript` field pointing to the relative transcript filename, or `TBD` if it does not exist yet.
+- `transcript_cleaned: false` — tracks whether transcript cleanup is complete.
+- `transcript_enriched: false` — tracks whether transcript enrichment is complete.
 - Topics: an empty `topics: []` array during initial creation.
 
 If the user already knows a non-default publishing override, the placeholder may also include a nested `publishing:` block. Otherwise omit it until remote sync work actually begins.
@@ -56,6 +58,8 @@ Leave `transcript: TBD` until the transcript file exists, and keep `topics: []` 
 Do not block intake on having an MP3 or embedded audio metadata ready yet. Those happen later, after the local episode metadata is mature enough to drive pre-upload tagging.
 
 Episode placeholders can be front-matter-only. Do not add markdown body filler when there is no substantive narrative content yet.
+
+After completing the intake workflow, offer to proceed to the next step: "Episode record created with speaker profiles linked. Would you like to proceed to transcript cleanup, or is the transcript not ready yet?"
 
 When show notes exist later, store them in the Markdown body of the episode file rather than a `description` front matter field. The first paragraph of the episode body should act as the summary instead of a dedicated `summary` front matter field.
 
