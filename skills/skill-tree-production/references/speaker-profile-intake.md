@@ -1,6 +1,6 @@
 # Speaker Profile Intake
 
-This document covers how to create or enrich a `data/speakers/` profile for a host or guest when the available information is incomplete.
+This document covers how to create or enrich a `references/speakers/` profile for a host or guest when the available information is incomplete.
 
 ## Goal
 
@@ -12,19 +12,19 @@ Speaker profile creation should be highly interactive. The agent should check as
 
 Use this workflow whenever:
 
-- A host or guest does not yet have a `data/speakers/` profile.
+- A host or guest does not yet have a `references/speakers/` profile.
 - An existing profile is too sparse for episode production needs.
 - The user provides only a name, handle, or partial identity.
 
 ## Intake Workflow
 
 1. Start with the user-provided identifier for the person.
-2. Check whether a matching `data/speakers/` profile already exists.
+2. Check whether a matching `references/speakers/` profile already exists.
 3. If there is no confident match, begin research to identify the person.
 4. If multiple plausible matches exist, ask the user to disambiguate before continuing.
 5. Once identity is confirmed, summarize the likely match for the user and confirm before writing a new profile.
 6. Continue research to populate the profile, including a proactive attempt to identify the speaker's public GitHub profile.
-7. Create or update the `data/speakers/` profile with verified information and clearly mark anything still unknown as `TBD`.
+7. Create or update the `references/speakers/` profile with verified information and clearly mark anything still unknown as `TBD`.
 
 ## Disambiguation Rule
 

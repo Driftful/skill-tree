@@ -8,8 +8,8 @@ Turn a cleaned transcript into better source material for the podcast knowledge 
 
 ## What This Workflow Does
 
-- Identifies reusable `data/directory/` candidates mentioned in the episode.
-- Adds local Markdown links to reusable `data/directory/` entries in the transcript.
+- Identifies reusable `references/directory/` candidates mentioned in the episode.
+- Adds local Markdown links to reusable `references/directory/` entries in the transcript.
 - Adds inline Markdown links for one-off references that are useful only in local transcript context.
 - Produces an intermediate review document before any replacements are applied.
 
@@ -22,14 +22,14 @@ Turn a cleaned transcript into better source material for the podcast knowledge 
 
 ## Resolution Pipeline
 
-1. Start from the cleaned transcript in `data/transcripts/` plus any user-attached cleanup metadata.
+1. Start from the cleaned transcript in `references/transcripts/` plus any user-attached cleanup metadata.
 2. Extract candidate mentions that may need either a reusable directory entry or an inline one-off link.
 3. **Canonicalization pass** — before researching or drafting the review document, verify canonical naming for each candidate:
    - Check official project websites, GitHub repos, or npm/PyPI packages for the canonical display name
    - Normalize casing and spelling to match the public canonical form (e.g., "TypeScript" not "typescript", "Case" not "case")
    - Note any aliases that explain how the name appeared in the transcript
-   - When a matching `data/directory/` entry exists, check its frontmatter for `usage:` or `formatting:` guidance and follow it
-4. Check local `data/directory/` entries and aliases first before doing outside research.
+   - When a matching `references/directory/` entry exists, check its frontmatter for `usage:` or `formatting:` guidance and follow it
+4. Check local `references/directory/` entries and aliases first before doing outside research.
 5. For unresolved or ambiguous candidates, run research subagents to identify the best target URL and enough facts to support a concise summary. For GitHub repos, use the `gh` CLI tool (`gh repo view`, `gh api`) rather than web scraping.
 6. Track two different kinds of confidence:
    - entity-match confidence: how certain the workflow is about the target item
@@ -39,7 +39,7 @@ Turn a cleaned transcript into better source material for the podcast knowledge 
    - proposed inline one-off links
    - uncertain or unresolved cases
 8. Ask the user to edit or confirm that review document.
-9. Only after user approval, create or update any needed `data/directory/` entries.
+9. Only after user approval, create or update any needed `references/directory/` entries.
 10. Run the Enhancement Phase to apply links slice-by-slice (see below).
 11. Leave `topics:` unchanged and defer topic decisions to the standalone topic-curation workflow.
 
@@ -98,7 +98,7 @@ At the end of enhancement, every link from the original review should be either 
 
 The enhanced transcript goes to `[transcript]-enhanced.md` in the same directory as the source transcript.
 
-Example: `data/transcripts/001-episode.md` → `data/transcripts/001-episode-enhanced.md`
+Example: `references/transcripts/001-episode.md` → `references/transcripts/001-episode-enhanced.md`
 
 After verification, the enhanced version replaces the original cleaned transcript.
 
@@ -144,7 +144,7 @@ Examples of when NOT to link again:
 
 When a reusable directory candidate is accepted:
 
-- create or update the corresponding `data/directory/*.md` entry
+- create or update the corresponding `references/directory/*.md` entry
 - link the transcript mention to that local directory file, not directly to the external canonical URL
 
 When a one-off inline reference is accepted:
@@ -187,7 +187,7 @@ Common candidates include:
 
 The question is not whether the thing is important in this one episode. The question is whether it is likely to be useful as a reusable entry across the podcast corpus.
 
-**Public vs. local directory placement**: A publicly available skill, plugin, or integration may still belong in the local `data/directory/` if it is likely to recur across episodes. For example, a widely-used Cursor skill or a popular MCP server that comes up in multiple conversations should have a local directory entry, even though it exists in a public registry. The local entry provides podcast-specific context and anchors transcript links consistently.
+**Public vs. local directory placement**: A publicly available skill, plugin, or integration may still belong in the local `references/directory/` if it is likely to recur across episodes. For example, a widely-used Cursor skill or a popular MCP server that comes up in multiple conversations should have a local directory entry, even though it exists in a public registry. The local entry provides podcast-specific context and anchors transcript links consistently.
 
 ## Inline One-Off References
 

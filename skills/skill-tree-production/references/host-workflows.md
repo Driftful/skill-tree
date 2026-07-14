@@ -23,7 +23,7 @@ For the detailed workflow for researching and creating host or guest records, se
 For the post-cleanup metadata pass that creates reusable directory links and inline one-off references, see [Transcript Enrichment](transcript-enrichment.md).
 For the exact resolution and review-document rules used during transcript enrichment, see [Link Resolution](link-resolution.md).
 For the canonical pre-upload audio-tagging rules, see [Audio Tagging](audio-tagging.md).
-For the separate whole-corpus process that curates `data/topics/`, see [Topic Curation](topic-curation.md).
+For the separate whole-corpus process that curates `references/topics/`, see [Topic Curation](topic-curation.md).
 
 ## Transcript Workflow
 
@@ -38,11 +38,11 @@ Current working pipeline for transcript creation and cleanup:
 7. Run the parent repo's `transcript-cleanup` skill, passing:
    - The raw transcript path (e.g., `references/transcripts/001.txt`)
    - The metadata file path (e.g., `references/in-progress/001-metadata.md`)
-8. After cleanup completes, move the cleaned transcript from `in-progress/[episode]-cleaned.md` to its final location in `data/transcripts/`.
+8. After cleanup completes, move the cleaned transcript from `in-progress/[episode]-cleaned.md` to its final location in `references/transcripts/`. The cleanup pass prepends a `## Episode Chapters` block to the cleaned transcript; when promoting it, lift that chapter list into the episode file's `## Episode Chapters` section and remove it from the final transcript, since transcripts in `references/transcripts/` do not carry chapters.
 9. Update episode front matter: set `transcript_cleaned: true`. If cleanup flagged explicit content, set `explicit: true`.
 10. Run the transcript enrichment workflow to identify reusable directory entries and inline one-off references.
 11. Review the generated Markdown review document and edit or approve it before any replacements are applied.
-12. Only after review approval, create or update the needed `data/directory/` files and apply transcript replacements.
+12. Only after review approval, create or update the needed `references/directory/` files and apply transcript replacements.
 13. After enrichment completes, update episode front matter: set `transcript_enriched: true`.
 14. Leave topics alone during transcript enrichment and revisit them only in the separate topic-curation workflow.
 
@@ -82,10 +82,11 @@ npx skills add Diftful/skill-tree@transcript-cleanup
 Notes:
 
 - Treat the segmented `MacWhisper` export as the cleanup input format.
+- Stage the raw cleanup input as `references/in-progress/[episode].md` so the cleanup skill's derived outputs land at `[episode]-cleaned.md` and `[episode]-observations.md` (it names outputs by suffixing the input filename).
 - The cleanup pass should preserve spoken meaning while improving transcript usability for downstream episode production.
 - Transcript enrichment is for local episode cleanup plus reusable directory extraction, not topic assignment.
 - Research can run autonomously, including subagent-backed link resolution, but transcript changes should be staged in a review document before application.
-- For reusable items, link only the first approved occurrence by default and point that link at the local `data/directory/` entry.
+- For reusable items, link only the first approved occurrence by default and point that link at the local `references/directory/` entry.
 - For one-off references, link directly to the external URL in the transcript.
 - If a one-off reference seems to point at a specific clip, episode, talk, or video, ask the user for the exact target when a generic page would be a guess.
 - Attach links to the text describing the actual referenced artifact or idea, not automatically to the nearest person, show, or product name.
@@ -110,7 +111,7 @@ All other Markdown files under `references/` must have valid YAML frontmatter (e
 
 ## Remote Publishing Workflow
 
-Treat the podcast files in `data/` as the source of truth. Remote hosting actions happen only after the local episode record is mature enough to publish.
+Treat the podcast files in `references/` as the source of truth. Remote hosting actions happen only after the local episode record is mature enough to publish.
 
 Before any upload, treat embedded MP3 metadata as part of the local publish artifact, not as an optional post-processing step.
 
@@ -149,12 +150,12 @@ This check should happen during the final pre-publish review, before any remote 
 4. Run `node skills/skill-tree-production/scripts/build-reference-indexes.mjs` to refresh committed episode, speaker, transcript, and directory indexes once the local metadata is stable.
 5. When the user provides an MP3 path outside the repo, perform the same local audio preparation regardless of whether the next remote step is create or replace.
 6. Inspect that local file for existing tags and chapters before upload.
-7. If the file is missing required tags, has stale tags, or lacks expected chapters, tag that local file using the episode front matter, show metadata in `data/show.md`, the episode Markdown body, and the `## Episode Chapters` section.
+7. If the file is missing required tags, has stale tags, or lacks expected chapters, tag that local file using the episode front matter, show metadata in `references/show.md`, the episode Markdown body, and the `## Episode Chapters` section.
 8. Write standard ID3 fields first, then add podcast-identification frames, then import chapter markers.
 9. Verify the tagged file locally before upload.
 10. Upload the tagged MP3 with `node scripts/transistor-fm.mjs episodes upload --file <path>`.
 11. Save the returned audio URL into the episode front matter as `publishing.audio_url`.
-12. If the user explicitly asks to create the hosted episode and no `publishing.episode_id` exists yet, read the provider show ID from `data/show.md` and run `node scripts/transistor-fm.mjs episodes create --show-id <show-id-from-show-md> ...`.
+12. If the user explicitly asks to create the hosted episode and no `publishing.episode_id` exists yet, read the provider show ID from `references/show.md` and run `node scripts/transistor-fm.mjs episodes create --show-id <show-id-from-show-md> ...`.
 13. Save the returned remote episode ID as `publishing.episode_id`, along with any returned `share_url`, `transcript_url`, or current remote `status`.
 14. If the user explicitly asks to replace hosted audio for an existing episode, reuse `publishing.audio_url` with `node scripts/transistor-fm.mjs episodes update --id <episode-id> --audio-url <audio-url>` and wait for remote processing to finish.
 15. If metadata changes after the remote create or audio replacement, inspect the local MP3 again, re-tag it if needed, then run `node scripts/transistor-fm.mjs episodes update --id <episode-id> ...`.
@@ -170,8 +171,8 @@ Treat the local MP3 as a derived artifact of the episode record.
 Before upload:
 
 1. Inspect the MP3 with `uvx eyeD3 -v <file>` and `uvx mp3chaps2 -l <file>` to see which tags and chapters already exist.
-2. Read show-level metadata from `data/show.md`.
-3. Read episode front matter from `data/episodes/*.md`.
+2. Read show-level metadata from `references/show.md`.
+3. Read episode front matter from `references/episodes/*.md`.
 4. Use the episode Markdown body as the source for long-form description context.
 5. If a `## Episode Chapters` section exists, treat it as the canonical source for embedded MP3 chapters.
 6. If required tags are missing or stale, apply standard ID3 frames such as title, album/show title, artist, album artist, genre, publisher, comments, and URLs.
@@ -196,8 +197,8 @@ At local tagging time, map local content into the MP3 like this:
 
 - episode title from episode front matter `title`
 - episode summary from episode front matter `summary` when present and useful for local ID3 comments
-- show title from `data/show.md`
-- show description from the Markdown body of `data/show.md` when a second descriptive comment field is useful
+- show title from `references/show.md`
+- show description from the Markdown body of `references/show.md` when a second descriptive comment field is useful
 - hosts from episode front matter `hosts`
 - long-form chapter labels from the episode `## Episode Chapters` section when present
 - share, transcript, site, and audio URLs when they already exist
@@ -254,7 +255,7 @@ This guidance applies to all production steps. Always offer the next step unless
 
 ## Maintenance Expectations
 
-- Keep source content (`data/episodes`, `data/speakers`, `data/transcripts`, `data/directory`, and `data/topics`) current and consistent.
+- Keep source content (`references/episodes`, `references/speakers`, `references/transcripts`, `references/directory`, and `references/topics`) current and consistent.
 - Let build scripts generate index and aggregation pages from the source content.
 - Ensure root `SKILL.md` continues to act as a concise navigation hub.
 
@@ -269,8 +270,8 @@ This guidance applies to all production steps. Always offer the next step unless
 
 When changing an episode title, update all three locations:
 
-1. **Episode frontmatter** — the `title:` field in `data/episodes/*.md`
+1. **Episode frontmatter** — the `title:` field in `references/episodes/*.md`
 2. **Episode document heading** — the `# Title` heading in the episode Markdown body
-3. **Transcript title** — the `# Title` heading or `title:` frontmatter in `data/transcripts/*.md`
+3. **Transcript title** — the `# Title` heading or `title:` frontmatter in `references/transcripts/*.md`
 
 This keeps the episode and transcript titles in sync for indexing and display.

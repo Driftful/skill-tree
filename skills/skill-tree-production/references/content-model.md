@@ -11,12 +11,12 @@ Use progressive disclosure. Keep root `SKILL.md` minimal and navigation-first, a
 ## Source of Truth Files
 
 These are hand-authored and treated as build inputs:
-- `data/show.md`: show-wide metadata and publishing configuration.
-- `data/speakers/*.md`: host/guest bios and expertise tags.
-- `data/episodes/*.md`: metadata, summaries, tags, and speaker references.
-- `data/transcripts/*.md`: full episode transcripts.
-- `data/directory/*.md`: reusable named entries for tools, projects, orgs, protocols, coined terms, and other recurring references.
-- `data/topics/*.md`: topic definitions (display name and description).
+- `references/show.md`: show-wide metadata and publishing configuration.
+- `references/speakers/*.md`: host/guest bios and expertise tags.
+- `references/episodes/*.md`: metadata, summaries, tags, and speaker references.
+- `references/transcripts/*.md`: full episode transcripts.
+- `references/directory/*.md`: reusable named entries for tools, projects, orgs, protocols, coined terms, and other recurring references.
+- `references/topics/*.md`: topic definitions (display name and description).
 
 Speaker files are source-of-truth records, not leaf pages.
 
@@ -27,14 +27,14 @@ Episode source files should use a zero-padded numeric prefix followed by the slu
 - `001-some-episode.md`
 - `042-agent-memory.md`
 
-Determine the next episode number by inspecting existing files in `data/episodes/` and incrementing the highest `###` prefix. If no episode files exist yet, start at `001`, unless the user explicitly designates a bootstrap or pilot `000` episode.
+Determine the next episode number by inspecting existing files in `references/episodes/` and incrementing the highest `###` prefix. If no episode files exist yet, start at `001`, unless the user explicitly designates a bootstrap or pilot `000` episode.
 
 The episode number should also be represented in front matter so the structured metadata and filename stay aligned.
 The slug should be derived from the filename and should not be duplicated in front matter.
 
 ## Front Matter First
 
-For both `data/episodes/*.md` and `data/speakers/*.md`, most structured information should live in front matter.
+For both `references/episodes/*.md` and `references/speakers/*.md`, most structured information should live in front matter.
 
 Prefer front matter for fields such as:
 
@@ -56,7 +56,7 @@ For podcast publishing:
 - episode Markdown bodies should hold the long-form show notes and the text that will be passed to a hosting provider as the episode description
 - the first paragraph of the episode Markdown body acts as the episode summary for local lookup and downstream publishing needs
 - when present, a `## Episode Chapters` section in the episode body should be treated as the canonical source for embedded MP3 chapter labels
-- `data/show.md` should use its Markdown body for the show-level description rather than duplicating that text in front matter
+- `references/show.md` should use its Markdown body for the show-level description rather than duplicating that text in front matter
 - do not duplicate long-form descriptions into front matter when the Markdown body is the canonical source
 
 For episode placeholders, prefer explicit structured fields such as `transcript: TBD` and `topics: []` over extra boolean flags when the missing state is already obvious from the field value itself.
@@ -76,7 +76,7 @@ Unlike `transcript: TBD`, these flags track processing state rather than file ex
 
 ## Show Metadata
 
-Store show-wide metadata in `data/show.md`.
+Store show-wide metadata in `references/show.md`.
 
 Use front matter there for structured show fields such as:
 
@@ -93,7 +93,7 @@ Use the Markdown body for the long-form show description.
 Keep episode editorial metadata separate from publishing-system metadata.
 
 Also keep embedded audio metadata separate from hand-authored source metadata.
-The MP3 tags are a derived artifact generated from `data/show.md`, episode front matter, the episode Markdown body, and the `## Episode Chapters` section when present.
+The MP3 tags are a derived artifact generated from `references/show.md`, episode front matter, the episode Markdown body, and the `## Episode Chapters` section when present.
 
 Episode files may include a nested `publishing:` block for remote-sync state and provider-specific fields that are needed to create, update, or publish the remote episode.
 
@@ -142,7 +142,7 @@ Keep these three concepts separate:
 Directory membership for episodes should be derived by index-time lookup from linked references in episode and transcript content rather than stored as an explicit `directory` front matter field.
 
 Do not use `topics` for products, companies, repos, articles, or protocol names when a `directory` entry is the more precise fit.
-Do not create standalone files for one-off references unless they later prove to be recurring enough to merit promotion into `data/directory/`.
+Do not create standalone files for one-off references unless they later prove to be recurring enough to merit promotion into `references/directory/`.
 
 ## Generated Outputs
 
@@ -154,7 +154,7 @@ Generated during the build/publish process:
 - `speakers/index.md`: speakers with appearance counts.
 - directory and topic links surfaced from the root `SKILL.md`.
 
-These files are generated by scripts from the source content in `data/`. They are not hand-authored by the agent during normal maintenance work.
+These files are generated by scripts from the source content in `references/`. They are not hand-authored by the agent during normal maintenance work.
 
 ## Topic Curation
 

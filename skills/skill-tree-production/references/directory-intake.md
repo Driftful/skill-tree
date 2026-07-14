@@ -1,6 +1,6 @@
 # Directory Intake
 
-This document covers how to create or enrich a reusable entry in `data/directory/`.
+This document covers how to create or enrich a reusable entry in `references/directory/`.
 
 ## Goal
 
@@ -25,12 +25,12 @@ Do not create a directory entry for:
 
 - a one-off article or blog post
 - a single local citation that is best handled as an inline Markdown link
-- a broad thematic concept that belongs in `data/topics/`
+- a broad thematic concept that belongs in `references/topics/`
 
 ## Intake Workflow
 
 1. Start from a cleaned transcript, existing episode metadata, or an explicit user request.
-2. Check whether a matching `data/directory/` entry already exists.
+2. Check whether a matching `references/directory/` entry already exists.
 3. Check known aliases and nearby transcript context before treating it as unresolved.
 4. If it exists, update it only when new or better information is available.
 5. If it does not exist or the match is ambiguous, research the item and collect enough evidence to support a canonical name, canonical link, and concise summary.
@@ -115,4 +115,4 @@ Prefer one sentence that:
 Directory entries should be concise, factual, and reusable across episodes.
 Write for fast retrieval first, not marketing copy.
 
-When linking from a transcript, point reusable mentions at the local `data/directory/*.md` file rather than the external canonical URL stored in `links:`.
+When linking from a transcript, point reusable mentions at the local `references/directory/*.md` file rather than the external canonical URL stored in `links:`.

@@ -10,13 +10,13 @@ Resolve mentions with high confidence while keeping final application under huma
 
 - cleaned transcript
 - user-attached cleanup metadata when available
-- existing `data/directory/` entries
+- existing `references/directory/` entries
 
 ## Resolution Order
 
 1. Extract candidate mentions from the transcript.
 2. Normalize obvious variants using local aliases and transcript context.
-3. Try exact or alias-based matches against `data/directory/`.
+3. Try exact or alias-based matches against `references/directory/`.
 4. **Verify entity distinctness** — when a candidate appears similar to an existing directory entry, confirm they are the same entity before reusing the existing entry. Related but distinct tools must have separate entries.
    - Example: `Vim` and `Neovim` are related but distinct — do not silently substitute one for the other.
    - Example: `React` and `React Native` are related but distinct frameworks.
@@ -196,7 +196,7 @@ Apply changes only after the user has reviewed or confirmed the document.
 
 After approval:
 
-- create any needed `data/directory/*.md` entries for accepted reusable items
+- create any needed `references/directory/*.md` entries for accepted reusable items
 - use local relative links from the transcript to those directory files
 - use direct external links only for approved inline one-off references
 - preserve the approved anchor text choice, especially when it points at a specific artifact or idea instead of a broader name

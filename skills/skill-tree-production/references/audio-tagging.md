@@ -16,8 +16,8 @@ Use this workflow when:
 
 Build the MP3 tags from the local podcast source files:
 
-- `data/show.md` for show title, website, categories, provider defaults, and show description
-- `data/episodes/*.md` front matter for episode title, summary, hosts, guests, and publishing state
+- `references/show.md` for show title, website, categories, provider defaults, and show description
+- `references/episodes/*.md` front matter for episode title, summary, hosts, guests, and publishing state
 - the episode Markdown body for long-form description context
 - the episode `## Episode Chapters` section for chapter timestamps and labels when present
 
@@ -36,7 +36,7 @@ Use `eyeD3` first, then `mp3chaps2`.
 
 1. Confirm the local MP3 path.
 2. Inspect the current file with `uvx eyeD3 -v <file>` and `uvx mp3chaps2 -l <file>` before making upload decisions.
-3. Read `data/show.md` and the episode source file.
+3. Read `references/show.md` and the episode source file.
 4. Verify that title, summary, and show notes are mature enough for embedding.
 5. If chapter timestamps exist, render them into a sidecar file beside the MP3 using `HH:MM:SS.mmm Title` lines. The sidecar must be named by stripping the `.mp3` extension and appending `.chapters.txt` (e.g., `episode.mp3` → `episode.chapters.txt`, not `episode.mp3.chapters.txt`).
 6. If required tags are missing or stale, use `uvx eyeD3` to write the standard fields.
@@ -72,7 +72,7 @@ uvx eyeD3 --encoding utf8 \
   -a "<show-title>" \
   -b "<show-title>" \
   -G "Podcast" \
-  --publisher "<provider-label>" \
+  --publisher "<publisher-name>" \
   -c "<episode-summary>" \
   "<file>"
 
@@ -98,7 +98,7 @@ Preferred mappings:
 - show description or secondary descriptive text -> additional `COMM`
 - episode summary when a player benefits from lyric-style display -> `USLT`
 - genre -> `TCON`
-- publisher/provider label -> `TPUB`
+- publisher name — the show/podcast publisher, e.g. the show title, not the hosting provider -> `TPUB`
 - podcast grouping or type label when useful -> `TIT1`
 - short subtitle/tagline when useful -> `TIT3`
 - website, share URL, transcript URL, or audio URL -> URL frames such as `WOAS`, `WOAF`, `WPUB`, or `WXXX`
@@ -119,5 +119,5 @@ Preferred mappings:
 ## Operational Notes
 
 - The local MP3 is a derived publish artifact, not the source of truth.
-- The source of truth remains `data/show.md`, the episode file, and the transcript-derived supporting files.
+- The source of truth remains `references/show.md`, the episode file, and the transcript-derived supporting files.
 - `publishing.audio_url` should only be saved after the tagged file is uploaded.

@@ -19,15 +19,15 @@ This keeps initial context small while preserving deep coverage.
 
 - Skill entry point: `skills/skill-tree-podcast/SKILL.md`
 - Reference docs: `skills/skill-tree-podcast/references/`
-- Source content: `skills/skill-tree-podcast/data/`
+- Source content: `skills/skill-tree-podcast/references/`
 
 ## Source Content Layers
 
-- `data/episodes/`: per-episode records
-- `data/speakers/`: reusable people records
-- `data/transcripts/`: cleaned transcript text
-- `data/directory/`: reusable named entries for things in the podcast ecosystem
-- `data/topics/`: high-level corpus themes curated separately over time
+- `references/episodes/`: per-episode records
+- `references/speakers/`: reusable people records
+- `references/transcripts/`: cleaned transcript text
+- `references/directory/`: reusable named entries for things in the podcast ecosystem
+- `references/topics/`: high-level corpus themes curated separately over time
 
 Keep `directory` and `topics` distinct:
 

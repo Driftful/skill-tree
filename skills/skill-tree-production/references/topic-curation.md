@@ -1,6 +1,6 @@
 # Topic Curation
 
-This document covers the standalone workflow for curating `data/topics/`.
+This document covers the standalone workflow for curating `references/topics/`.
 
 ## Goal
 
@@ -39,11 +39,11 @@ A topic is not:
 - a protocol or file format
 - a one-off article or blog post
 
-Those belong in `data/directory/` or as inline transcript links instead.
+Those belong in `references/directory/` or as inline transcript links instead.
 
 ## Curation Workflow
 
-1. Review the existing `data/topics/` set.
+1. Review the existing `references/topics/` set.
 2. Review the episode corpus as a whole, not just a single episode.
 3. Identify clusters that recur across multiple episodes and are likely to continue to matter.
 4. Compare candidate clusters against existing topics before creating anything new.

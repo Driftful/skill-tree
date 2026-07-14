@@ -18,12 +18,12 @@ Episode creation should be highly interactive. The agent should confirm key deta
 
 ## Default Intake Flow
 
-1. Inspect existing `data/episodes/` files and determine the next episode number from the highest `###` prefix, unless the user has already specified an explicit episode number to use.
+1. Inspect existing `references/episodes/` files and determine the next episode number from the highest `###` prefix, unless the user has already specified an explicit episode number to use.
 2. Ask the user to confirm a temporary filename stem for the new episode.
-3. Create an episode placeholder in `data/episodes/` using the `###-slug.md` filename pattern.
+3. Create an episode placeholder in `references/episodes/` using the `###-slug.md` filename pattern.
 4. Ask who the hosts were for this recording.
 5. Ask whether there were any guests.
-6. For each person on the episode, link an existing `data/speakers/` profile or create a new one.
+6. For each person on the episode, link an existing `references/speakers/` profile or create a new one.
 7. Leave unknown fields as `TBD` instead of blocking progress.
 8. Do not create or publish the remote hosting entry during intake unless the user explicitly asks for that later.
 
@@ -67,7 +67,7 @@ When show notes exist later, store them in the Markdown body of the episode file
 
 For each host or guest:
 
-1. Check whether a matching `data/speakers/` profile already exists.
+1. Check whether a matching `references/speakers/` profile already exists.
 2. If it exists, reuse it and update it only if new information is available.
 3. If it does not exist, run the speaker intake workflow in [Speaker Profile Intake](speaker-profile-intake.md).
 4. Create the profile early so the episode can reference a stable speaker record even if some fields remain `TBD`.

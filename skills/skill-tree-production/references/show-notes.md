@@ -1,6 +1,6 @@
 # Show Notes Template
 
-Use this as the reference template for the Markdown body of `data/episodes/*.md`.
+Use this as the reference template for the Markdown body of `references/episodes/*.md`.
 
 The body should be the canonical publisher-facing episode description:
 
@@ -21,11 +21,11 @@ If a podcast SEO skill is installed, load it before continuing.
 
 ## What To Use As Input
 
-- `data/show.md` for show framing, tone, and brand language
+- `references/show.md` for show framing, tone, and brand language
 - episode front matter for title, optional local summary, hosts, guests, and publishing state
-- `data/transcripts/*.md` for themes, quotes, questions, and exact references
-- `data/speakers/*.md` for host and guest bios
-- `data/directory/*.md` plus approved inline links for tools, projects, articles, and products mentioned
+- `references/transcripts/*.md` for themes, quotes, questions, and exact references
+- `references/speakers/*.md` for host and guest bios
+- `references/directory/*.md` plus approved inline links for tools, projects, articles, and products mentioned
 
 The episode body, not episode front matter `summary`, is the canonical publisher-facing description source.
 
@@ -150,7 +150,7 @@ Preferred section order:
 
 [Guest name]
 
-[1-3 sentence bio pulled from `data/speakers/*.md` and lightly adapted for the page.]
+[1-3 sentence bio pulled from `references/speakers/*.md` and lightly adapted for the page.]
 
 ## Related Listening
 
@@ -163,7 +163,7 @@ Preferred section order:
 Given the current `skill-tree-podcast` structure, the best default is:
 
 - keep the episode body focused on a short summary, concrete highlights, references, and only the bios that are actually useful
-- keep the full transcript in `data/transcripts/*.md`
+- keep the full transcript in `references/transcripts/*.md`
 - use the transcript to enrich the show notes, not to replace them
 - when chapter timestamps exist, keep them in the episode body as the canonical source for embedded MP3 chapters
 - let directory entries and approved inline links carry the detailed reference layer
