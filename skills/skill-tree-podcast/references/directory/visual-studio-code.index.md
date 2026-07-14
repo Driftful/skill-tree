@@ -8,3 +8,4 @@ This page shows where [Visual Studio Code](./visual-studio-code.md) appears.
 ## Appears In
 
 - [000 Theyre All Markdown Files](../transcripts/000-theyre-all-markdown-files.md) - linked
+- [002 I Havent Given It A Soul](../transcripts/002-i-havent-given-it-a-soul.md) - linked
