@@ -160,7 +160,7 @@ This check should happen during the final pre-publish review, before any remote 
 15. If metadata changes after the remote create or audio replacement, inspect the local MP3 again, re-tag it if needed, then run `node scripts/transistor-fm.mjs episodes update --id <episode-id> ...`.
 16. Any time a transcript is sent during `episodes create` or `episodes update`, save the returned `transcript_url` into episode front matter as `publishing.transcript_url` when present.
 17. When the user explicitly asks to publish or schedule the episode, run `node scripts/transistor-fm.mjs episodes publish --id <episode-id> --status ...`.
-18. After a successful publish action, ping the Podcast Index to notify them of the new or updated episode: `curl -s "https://api.podcastindex.org/api/1.0/hub/pubnotify?id=<episode-id>"`.
+18. After a successful publish action, ping the Podcast Index to notify them of the new or updated episode: `curl -s -A "TheSkillTree-Podcast/1.0 (+https://skilltree.fm)" "https://api.podcastindex.org/api/1.0/hub/pubnotify?id=<episode-id>"`. The endpoint rejects requests without a proper identifying User-Agent, so the `-A` header is required.
 19. After any update to a published episode (metadata, audio replacement, transcript), also ping the Podcast Index with the same URL to trigger a refresh.
 
 ### Local Audio Tagging Workflow
@@ -225,8 +225,10 @@ If the user asks to publish an episode that does not yet have `publishing.episod
 After publishing or updating a published episode, notify the Podcast Index so third-party podcast apps can refresh their caches:
 
 ```bash
-curl -s "https://api.podcastindex.org/api/1.0/hub/pubnotify?id=<episode-id>"
+curl -s -A "TheSkillTree-Podcast/1.0 (+https://skilltree.fm)" "https://api.podcastindex.org/api/1.0/hub/pubnotify?id=<episode-id>"
 ```
+
+A proper identifying User-Agent (`-A`) is required; requests without one are rejected. A successful ping returns `{"status":"true","description":"Feed marked for immediate update."}`.
 
 **When to ping:**
 - After initial publish (`episodes publish` with `status=published`)
