@@ -11,7 +11,7 @@ transcript_cleaned: true
 transcript_enriched: true
 topics: []
 publishing:
-  audio_url: https://uploads.transistor.fm/7ba9704e04decdf6ddc2d13826a291a0.mp3
+  audio_url: https://uploads.transistor.fm/1e00e0ca27c51fc8c88e73cdc3d00f89.mp3
   episode_id: 3395809
   status: published
   published_at: 2026-07-14T18:57:06.203Z
