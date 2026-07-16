@@ -21,7 +21,7 @@ publishing:
 
 Episode 2 of The Skill Tree is a hosts-only catch-up where Neil Roberts and Nick Nisi trade notes on a fast-moving few weeks in AI coding tools. They dig into the Ralph Loop arriving as a `/goal` command, the personal utilities they are each building around their agents, the industry's drift from Markdown to HTML for agent output, and a genuinely unnerving npm supply-chain worm.
 
-The conversation is less about any single tool and more about the workflows forming around them. Nick walks through a session-search tool he built to fuzzy-find across every Claude, Pi, and Codex transcript he has ever run, and Neil describes the Dockerized, mobile-first OpenCode setup he wired to Readwise Reader, Tailscale, and a synced Obsidian vault — a rig so pleasant to use that Nick asks whether he has accidentally built his own Claude. "I haven't given it a soul," Neil says.
+The conversation is less about any single tool and more about the workflows forming around them. Nick walks through a session-search tool he built to fuzzy-find across every Claude, Pi, and Codex transcript he has ever run, and Neil describes the Dockerized, mobile-first OpenCode setup he wired to Readwise Reader, Tailscale, and a synced Obsidian vault — a rig so pleasant to use that Nick asks whether he has accidentally built his own OpenClaw. "I haven't given it a soul," Neil says.
 
 ## In This Episode
 
@@ -45,7 +45,7 @@ The conversation is less about any single tool and more about the workflows form
 - `27:40` Constraints, Cloudflare Code Mode, and Throwaway Scripts
 - `31:28` npm Supply-Chain Fear and the Dead Man's Switch
 - `32:38` Neil's Dockerized Mobile Stack
-- `38:07` Is It an Open Claude? Hermes, Raindrop, and OpenCode
+- `38:07` Is It an OpenClaw? Hermes, Raindrop, and OpenCode
 - `42:42` Outro: Procrastination and Intuitive Living
 
 ## When Looping Agents Earn Their Keep
@@ -58,7 +58,7 @@ The useful part is where they draw the line. Looping shines on deterministic, ve
 
 Both hosts have started treating their agents as platforms to build on. Nick's session-search tool indexes every Claude, Pi, and Codex transcript into SQLite — even across deleted worktrees — so he can fuzzy-find that thing he did last week, and he wraps it in an MCP server so the agents can search their own history. Neil's project is a Docker Compose stack he can drive from his phone: OpenCode's web server behind Tailscale, VS Code and a couple of web file browsers, and a Readwise Reader pipeline that summarizes saved articles through an agent and files them into a CouchDB-synced Obsidian vault as a daily "dispatch."
 
-It is the moment Neil describes that setup — nice enough that Nick asks if it is "an open Claude" — that gives the episode its title. The throughline is that a lot of the value now comes from the unglamorous plumbing you assemble yourself, not the model.
+It is the moment Neil describes that setup — nice enough that Nick asks if it is "an OpenClaw" — that gives the episode its title. The throughline is that a lot of the value now comes from the unglamorous plumbing you assemble yourself, not the model.
 
 ## Markdown, HTML, and Rediscovering the Web
 
