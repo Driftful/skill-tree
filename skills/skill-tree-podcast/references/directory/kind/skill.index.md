@@ -1,6 +1,6 @@
 # Directory: skill
 
-This page lists 8 entries with `kind: skill`.
+This page lists 10 entries with `kind: skill`.
 
 - [Back to kind index](./index.md)
 - [Back to directory](../index.md)
@@ -15,3 +15,5 @@ This page lists 8 entries with `kind: skill`.
 - [octoflow](../octoflow.md) - Claude plugin for Nick C's preferred git workflow, including commit-message conventions and commit interception hooks.
 - [skill-forge](../skill-forge.md) - Claude plugin for creating and improving skills, with structured orchestration, validation, and evaluation workflows.
 - [skill-tree-podcast](../skill-tree-podcast.md) - Podcast production skill for The Skill Tree, covering episode records, transcripts, references, and related publishing workflows.
+- [Wayfinder](../wayfinder.md) - Matt Pocock's planning skill for work too large to spec in one sitting. Builds a central map of interdependent tickets, spanning grilling, prototype, and research, that grows as questions surface and shrinks as they resolve.
+- [zoom-out](../zoom-out.md) - Matt Pocock skill that steps the agent up one abstraction layer and maps the relevant modules and callers in a codebase's own vocabulary. Run it repeatedly to keep zooming out. Since removed from the skills repo; the link points at the last version before deletion.

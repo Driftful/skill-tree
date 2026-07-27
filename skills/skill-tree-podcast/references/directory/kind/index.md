@@ -6,9 +6,9 @@ This index groups `directory` references by `kind` across 6 values.
 
 ## Values
 
-- [concept](./concept.index.md) - 3 entries
-- [framework](./framework.index.md) - 9 entries
-- [organization](./organization.index.md) - 6 entries
-- [product](./product.index.md) - 26 entries
-- [skill](./skill.index.md) - 8 entries
-- [tool](./tool.index.md) - 17 entries
+- [concept](./concept.index.md) - 5 entries
+- [framework](./framework.index.md) - 11 entries
+- [organization](./organization.index.md) - 7 entries
+- [product](./product.index.md) - 32 entries
+- [skill](./skill.index.md) - 10 entries
+- [tool](./tool.index.md) - 26 entries
