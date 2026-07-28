@@ -277,6 +277,12 @@ If the chapter markers in the metadata file and cleaned transcript disagree, tre
 
 Only after this comparison pass should you prepend the final chapters to the cleaned transcript. Do NOT add timestamps inline throughout the text.
 
+This prepend is the single sanctioned write to the cleaned file, and it still must not read it. Write the chapter block to a temp file and concatenate:
+
+```bash
+cat chapters.tmp "{transcript}-cleaned.md" > merged.tmp && mv merged.tmp "{transcript}-cleaned.md" && rm chapters.tmp
+```
+
 ### Step 7: Report Completion
 
 After cleanup is complete, report to the user:

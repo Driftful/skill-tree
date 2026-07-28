@@ -21,7 +21,7 @@ Use `scripts/slice.py` for ALL transcript reads. No exceptions.
 
 1. **Never read the transcript directly** — no Read tool, no `cat`, no `head`, no `tail`. Only `slice.py`.
 2. **Never read a line twice** — if a slice is short, continue from `SLICE END last_line + 1`, don't restart.
-3. **Never read or write the cleaned output file** — only append to it.
+3. **Never read or write the cleaned output file** — only append to it. The sole exception is the final chapter prepend in Step 6, which concatenates via a temp file and still never reads the transcript.
 4. **Never print cleaned content to the user** — append it to the file silently. Printing wastes context.
 5. **Never modify `--target-words`** — it is ALWAYS the same value start-to-finish. The script does the math with `--buffer-words`.
 6. **Never read full codebase files** — for terminology lookups, use subagents, grep, or file slices.
@@ -33,7 +33,7 @@ Use `scripts/slice.py` for ALL transcript reads. No exceptions.
 
 **The observations file is append-only.** Named `{transcript}-observations.md` (e.g., `episode.txt` → `episode-observations.md`). Append cleanup decisions, notable mentions, and title candidates as you go.
 
-**The cleaned output file is off-limits.** Named `{transcript}-cleaned.md` (e.g., `episode.txt` → `episode-cleaned.md`). Never read it, never write to it directly—only append.
+**The cleaned output file is off-limits.** Named `{transcript}-cleaned.md` (e.g., `episode.txt` → `episode-cleaned.md`). Never read it, never write to it directly—only append. The one exception is prepending the final chapter block in Step 6; see [cleaning-rules.md](references/cleaning-rules.md) for the temp-file concatenation that does this without reading the file.
 
 ### Why This Matters
 
@@ -56,8 +56,10 @@ Streams through a transcript file and prints a word-count-limited slice with loo
 
 **Usage:**
 ```bash
-python3 scripts/slice.py <file> --start-line N --target-words 2000
+python3 scripts/slice.py <file> --start-line N --line-count M --target-words 2000
 ```
+
+`--line-count` (or `--end-line`) is REQUIRED. Omitting it exits with `Provide exactly one of --end-line or --line-count`. Estimate `M` from the transcript's words-per-line so the slice comfortably exceeds `--target-words`; the script stops counting at the target and returns the remainder as look-ahead.
 
 Run `scripts/slice.py -h` for all arguments.
 

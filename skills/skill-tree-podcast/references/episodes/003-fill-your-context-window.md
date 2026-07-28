@@ -1,7 +1,7 @@
 ---
 number: 3
 title: "Fill Your Context Window"
-status: draft
+status: published
 hosts:
   - neil-roberts
   - nick-nisi
@@ -14,7 +14,7 @@ topics: []
 publishing:
   audio_url: https://uploads.transistor.fm/4031c27c5939a5339ce690abe755f0fa.mp3
   episode_id: 3432048
-  status: draft
+  status: published
   share_url: https://share.transistor.fm/s/0f5d2fa0
   transcript_url: https://share.transistor.fm/s/0f5d2fa0/transcript
 ---

@@ -95,7 +95,7 @@ Preferred mappings:
 - show title or podcast name -> `TPE1`
 - show title as album artist -> `TPE2`
 - episode summary -> `COMM`
-- show description or secondary descriptive text -> additional `COMM`
+- show description or secondary descriptive text -> a second `COMM` is **not** reliably writable with `uvx eyeD3`. Each `-c` replaces the previous comment rather than adding one, and the documented `COMMENT[:DESCRIPTION[:LANG]]` colon form is not honored — the literal `:Description` text ends up inside the tag. Embed the episode summary only, and do not block tagging on a second comment.
 - episode summary when a player benefits from lyric-style display -> `USLT`
 - genre -> `TCON`
 - publisher name — the show/podcast publisher, e.g. the show title, not the hosting provider -> `TPUB`

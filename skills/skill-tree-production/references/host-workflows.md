@@ -33,10 +33,10 @@ Current working pipeline for transcript creation and cleanup:
 2. Import all tracks into `Descript` and perform the podcast edit there.
 3. Export the edited audio and transcribe it with `MacWhisper`.
 4. Prefer the `Nvidia Parakeet v3` model, which has been the most accurate so far.
-5. Export the transcript from `MacWhisper` as `segments` and save to `references/transcripts/[episode].txt`.
+5. Export the transcript from `MacWhisper` as `segments` and stage it at `references/in-progress/[episode].md`, since the cleanup skill derives its output filenames from the input path (see Notes below). `references/transcripts/` holds only the finished transcript, not the raw export.
 6. Run First-Pass Discovery (see below) to produce the metadata file at `references/in-progress/[episode]-metadata.md`.
 7. Run the parent repo's `transcript-cleanup` skill, passing:
-   - The raw transcript path (e.g., `references/transcripts/001.txt`)
+   - The raw transcript path (e.g., `references/in-progress/001.md`)
    - The metadata file path (e.g., `references/in-progress/001-metadata.md`)
 8. After cleanup completes, move the cleaned transcript from `in-progress/[episode]-cleaned.md` to its final location in `references/transcripts/`. The cleanup pass prepends a `## Episode Chapters` block to the cleaned transcript; when promoting it, lift that chapter list into the episode file's `## Episode Chapters` section and remove it from the final transcript, since transcripts in `references/transcripts/` do not carry chapters.
 9. Update episode front matter: set `transcript_cleaned: true`. If cleanup flagged explicit content, set `explicit: true`.
@@ -109,6 +109,8 @@ Files in these directories are not indexed and do not need YAML frontmatter. Use
 
 All other Markdown files under `references/` must have valid YAML frontmatter (except raw transcripts in `references/transcripts/`).
 
+These three directories hold scratch artifacts and are not committed. Once an episode ships, delete their contents or leave them untracked — do not stage them alongside the episode record.
+
 ## Remote Publishing Workflow
 
 Treat the podcast files in `references/` as the source of truth. Remote hosting actions happen only after the local episode record is mature enough to publish.
@@ -147,20 +149,20 @@ This check should happen during the final pre-publish review, before any remote 
 1. Start the episode locally with the intake workflow.
 2. Clean and enrich the transcript.
 3. Finalize local metadata such as title, show notes in the episode Markdown body, transcript path, speaker references, and `## Episode Chapters` labels when available. Directory entries are created as separate files and linked in transcripts; directory membership is derived at index time.
-4. Run `node skills/skill-tree-production/scripts/build-reference-indexes.mjs` to refresh committed episode, speaker, transcript, and directory indexes once the local metadata is stable.
+4. Run `node skills/skill-tree-production/scripts/build-reference-indexes.mjs skills/skill-tree-podcast/references` to refresh committed episode, speaker, transcript, and directory indexes once the local metadata is stable. The target directory argument is required; without it the script only prints usage and exits.
 5. When the user provides an MP3 path outside the repo, perform the same local audio preparation regardless of whether the next remote step is create or replace.
 6. Inspect that local file for existing tags and chapters before upload.
 7. If the file is missing required tags, has stale tags, or lacks expected chapters, tag that local file using the episode front matter, show metadata in `references/show.md`, the episode Markdown body, and the `## Episode Chapters` section.
 8. Write standard ID3 fields first, then add podcast-identification frames, then import chapter markers.
 9. Verify the tagged file locally before upload.
-10. Upload the tagged MP3 with `node scripts/transistor-fm.mjs episodes upload --file <path>`.
+10. Upload the tagged MP3 with `node skills/transistor-fm/scripts/transistor-fm.mjs episodes upload --file <path>`.
 11. Save the returned audio URL into the episode front matter as `publishing.audio_url`.
-12. If the user explicitly asks to create the hosted episode and no `publishing.episode_id` exists yet, read the provider show ID from `references/show.md` and run `node scripts/transistor-fm.mjs episodes create --show-id <show-id-from-show-md> ...`.
+12. If the user explicitly asks to create the hosted episode and no `publishing.episode_id` exists yet, read the provider show ID from `references/show.md` and run `node skills/transistor-fm/scripts/transistor-fm.mjs episodes create --show-id <show-id-from-show-md> ...`.
 13. Save the returned remote episode ID as `publishing.episode_id`, along with any returned `share_url`, `transcript_url`, or current remote `status`.
-14. If the user explicitly asks to replace hosted audio for an existing episode, reuse `publishing.audio_url` with `node scripts/transistor-fm.mjs episodes update --id <episode-id> --audio-url <audio-url>` and wait for remote processing to finish.
-15. If metadata changes after the remote create or audio replacement, inspect the local MP3 again, re-tag it if needed, then run `node scripts/transistor-fm.mjs episodes update --id <episode-id> ...`.
+14. If the user explicitly asks to replace hosted audio for an existing episode, reuse `publishing.audio_url` with `node skills/transistor-fm/scripts/transistor-fm.mjs episodes update --id <episode-id> --audio-url <audio-url>` and wait for remote processing to finish.
+15. If metadata changes after the remote create or audio replacement, inspect the local MP3 again, re-tag it if needed, then run `node skills/transistor-fm/scripts/transistor-fm.mjs episodes update --id <episode-id> ...`.
 16. Any time a transcript is sent during `episodes create` or `episodes update`, save the returned `transcript_url` into episode front matter as `publishing.transcript_url` when present.
-17. When the user explicitly asks to publish or schedule the episode, run `node scripts/transistor-fm.mjs episodes publish --id <episode-id> --status ...`.
+17. When the user explicitly asks to publish or schedule the episode, run `node skills/transistor-fm/scripts/transistor-fm.mjs episodes publish --id <episode-id> --status ...`.
 18. After a successful publish action, ping the Podcast Index to notify them of the new or updated episode: `curl -s -A "TheSkillTree-Podcast/1.0 (+https://skilltree.fm)" "https://api.podcastindex.org/api/1.0/hub/pubnotify?id=<episode-id>"`. The endpoint rejects requests without a proper identifying User-Agent, so the `-A` header is required.
 19. After any update to a published episode (metadata, audio replacement, transcript), also ping the Podcast Index with the same URL to trigger a refresh.
 
@@ -185,7 +187,8 @@ Before upload:
 At sync time, map local content into the remote episode payload like this:
 
 - title from episode front matter `title`
-- description from the episode Markdown body
+- description from the episode Markdown body, converted to HTML via `parse-markdown-json.py`
+- rewrite relative Markdown links to absolute URLs before sending. `Related Listening` entries point at sibling `.md` files, which render as dead hrefs on the hosted episode page — use each target episode's `publishing.share_url`
 - transcript text from the local transcript file
 - episode number only when it is explicitly appropriate for the remote record
 - keywords from `publishing.keywords` when present

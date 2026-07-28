@@ -17,7 +17,9 @@ The default should read like clear production notes, not like a launch post, ess
 
 ## Skill Preference
 
-If a podcast SEO skill is installed, load it before continuing.
+If a podcast SEO skill is installed, you may load it for keyword awareness — but this document governs structure and voice.
+
+Generic podcast SEO skills tend to mandate an `#` H1, meta descriptions, schema markup, "Key Takeaways" blocks, and 4,000+ word pages. All of those contradict the rules below, which require `##`-only headings and roughly 300 to 900 words, on the premise that the transcript carries the long-tail SEO depth. Take the keyword and internal-linking guidance; ignore structural advice that conflicts with this document.
 
 ## What To Use As Input
 
